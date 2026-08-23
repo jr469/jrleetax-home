@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>세금 계산기 모음 — 세무사 이정란사무소</title>
+<meta name="description" content="양도소득세·상속세·증여세·취득세·임원퇴직금 등 세금 계산기 모음. 세무사 이정란사무소 무료 제공.">
+<style>
+:root{
+  --navy:#0d2a5e;--navy2:#1a3f80;--accent:#185fa5;--accent-lt:#e6f1fb;
+  --ink:#12203a;--ink2:#3d4d68;--muted:#7a8699;--line:#dde3ec;
+  --bg:#f5f7fa;--card:#fff;--green:#0f766e;--green-bg:#e9f6f4;
+  --warn:#b45309;--warn-bg:#fdf4e6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Malgun Gothic','맑은 고딕',-apple-system,sans-serif;
+  font-size:14px;line-height:1.6;color:var(--ink);background:var(--bg)}
+
+/* 네비 */
+nav{position:sticky;top:0;z-index:100;background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:60px;box-shadow:0 2px 12px rgba(0,0,0,0.18)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-mark{width:42px;height:42px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#c9a84c 0%,#e8c97a 50%,#c9a84c 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:900;color:#0d2a5e;
+  letter-spacing:-1px;font-family:Georgia,"Times New Roman",serif;
+  box-shadow:0 2px 10px rgba(201,168,76,0.5)}
+.nav-logo-text{color:#fff;font-size:15px;font-weight:600;letter-spacing:-0.3px}
+.nav-logo-sub{color:#a8c4f0;font-size:11px;font-weight:400;display:block;margin-top:1px}
+.nav-back{color:#c8daf5;font-size:13px;text-decoration:none;
+  display:flex;align-items:center;gap:6px;padding:6px 12px;
+  border-radius:6px;border:1px solid rgba(255,255,255,0.2)}
+.nav-back:hover{background:rgba(255,255,255,0.1);color:#fff}
+
+/* 헤더 */
+.page-header{background:linear-gradient(135deg,var(--navy),var(--navy2));
+  padding:40px 32px;text-align:center}
+.page-header h1{color:#fff;font-size:28px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px}
+.page-header p{color:#c8daf5;font-size:14px}
+
+/* 본문 */
+.wrap{max-width:960px;margin:0 auto;padding:32px 20px 60px}
+
+/* 카테고리 */
+.cat-title{font-size:12px;font-weight:700;color:var(--accent);
+  letter-spacing:0.8px;text-transform:uppercase;
+  margin:32px 0 14px;padding-left:10px;
+  border-left:3px solid var(--accent)}
+
+/* 계산기 그리드 */
+.calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:700px){.calc-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.calc-grid{grid-template-columns:1fr}}
+
+.calc-card{background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:20px;transition:all 0.15s;text-decoration:none;display:block}
+.calc-card:hover{border-color:var(--accent);transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(24,95,165,0.12)}
+.calc-card.disabled{opacity:0.6;cursor:default;pointer-events:none}
+.calc-icon{font-size:28px;margin-bottom:12px;display:block}
+.calc-card h3{font-size:15px;font-weight:800;color:var(--navy);
+  margin-bottom:6px;letter-spacing:-0.3px;line-height:1.4}
+.calc-card p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.badge{display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.badge.ok{background:var(--green-bg);color:var(--green)}
+.badge.soon{background:var(--warn-bg);color:var(--warn)}
+
+/* 추가 예정 */
+.coming-soon{background:#fff;border:1.5px dashed var(--line);border-radius:12px;
+  padding:20px;text-align:center;color:var(--muted)}
+.coming-soon p{font-size:13px;margin-top:6px}
+
+/* CTA */
+.cta-bar{background:linear-gradient(135deg,var(--navy),var(--navy2));
+  border-radius:12px;padding:28px 32px;text-align:center;margin-top:40px}
+.cta-bar h2{color:#fff;font-size:18px;font-weight:700;margin-bottom:8px}
+.cta-bar p{color:#c8daf5;font-size:13px;margin-bottom:20px}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;background:#FEE500;
+  color:#3A1D1D;border:none;border-radius:8px;padding:12px 24px;
+  font-size:14px;font-weight:700;cursor:pointer;text-decoration:none}
+.cta-btn:hover{filter:brightness(0.97)}
+
+.disclaimer{font-size:11.5px;color:var(--muted);margin-top:20px;
+  padding:12px 16px;background:#fff;border:1px dashed var(--line);
+  border-radius:8px;line-height:1.7;text-align:center}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark">JR</div>
+    <div>
+      <div class="nav-logo-text">세무사 이정란사무소</div>
+      <span class="nav-logo-sub">자산세무 전문</span>
+    </div>
+  </a>
+  <a href="index.html" class="nav-back">← 홈으로</a>
+</nav>
+
+<div class="page-header">
+  <h1>📊 세금 계산기 모음</h1>
+  <p>복잡한 세금, 직접 계산해보세요. 모두 무료로 제공합니다.<br>
+  계산 결과는 참고용이며, 정확한 세액은 세무사 상담을 권장합니다.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- 양도·취득 -->
+  <div class="cat-title">양도 · 취득세</div>
+  <div class="calc-grid">
+    <a href="양도소득세_개정비교계산기.html" class="calc-card">
+      <span class="calc-icon">🏠</span>
+      <h3>양도소득세 개정 전·후 비교</h3>
+      <p>2026.8.3 세제개편안 반영 · 다주택 중과 · 장기보유특별공제 · 조정대상지역 조회</p>
+      <span class="badge ok">✓ 사용 가능</span>
+    </a>
+    <a href="취득세계산기.html" class="calc-card">
+      <span class="calc-icon">🔑</span>
+      <h3>취득세 계산기</h3>
+      <p>2026년 현재 기준 · 주택·비주택·상속·증여 · 조정대상지역 · 다주택 중과 · 생애최초 감면</p>
+      <span class="badge ok">✓ 사용 가능</span>
+    </a>
+    <div class="coming-soon">
+      <span style="font-size:28px">🏗️</span>
+      <p><b>종합부동산세 계산기</b><br>준비 중</p>
+      <span class="badge soon" style="margin-top:8px;display:inline-flex">준비 중</span>
+    </div>
+  </div>
+
+  <!-- 상속·증여 -->
+  <div class="cat-title">상속 · 증여세</div>
+  <div class="calc-grid">
+    <a href="상속세계산기.html" class="calc-card">
+      <span class="calc-icon">📋</span>
+      <h3>상속세 계산기</h3>
+      <p>2026년 현재 기준 · 배우자공제·일괄공제 자동 비교 · 가업상속공제 · 금융재산공제</p>
+      <span class="badge ok">✓ 사용 가능</span>
+    </a>
+    <a href="증여세계산기.html" class="calc-card">
+      <span class="calc-icon">🎁</span>
+      <h3>증여세 계산기</h3>
+      <p>2026년 현재 기준 · 관계별 공제한도 · 10년 합산 · 분할증여 절세 시뮬레이션</p>
+      <span class="badge ok">✓ 사용 가능</span>
+    </a>
+    <div class="coming-soon">
+      <span style="font-size:28px">📊</span>
+      <p><b>가업상속공제 시뮬레이터</b><br>준비 중</p>
+      <span class="badge soon" style="margin-top:8px;display:inline-flex">준비 중</span>
+    </div>
+  </div>
+
+  <!-- 법인 -->
+  <div class="cat-title">법인 · 퇴직금</div>
+  <div class="calc-grid">
+    <a href="임원퇴직금계산기.html" class="calc-card">
+      <span class="calc-icon">💼</span>
+      <h3>임원퇴직금 및 세액계산</h3>
+      <p>2026년 현재 기준 · 정관 규정 반영 · 손금산입 한도 · 퇴직소득세 계산</p>
+      <span class="badge ok">✓ 사용 가능</span>
+    </a>
+    <div class="coming-soon">
+      <span style="font-size:28px">🏢</span>
+      <p><b>법인전환 절세효과 비교</b><br>개인 vs 법인 세부담 분석</p>
+      <span class="badge soon" style="margin-top:8px;display:inline-flex">준비 중</span>
+    </div>
+    <div class="coming-soon">
+      <span style="font-size:28px">📈</span>
+      <p><b>비상장주식 가치평가</b><br>순손익·순자산가치 계산</p>
+      <span class="badge soon" style="margin-top:8px;display:inline-flex">준비 중</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-bar">
+    <h2>계산 결과가 걱정되시나요?</h2>
+    <p>계산기는 참고용입니다. 정확한 세액계산과 절세전략은 세무사 등 세무전문가와 직접 상담하시고 결정하시기 바랍니다.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="cta-btn">
+        💬 카카오채널 상담 신청
+      </a>
+      <a href="tel:02-935-0280" class="cta-btn" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.5)">
+        📞 02-935-0280
+      </a>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    본 계산기는 <b>실무 참고용</b>으로, 실제 세액은 개별 상황에 따라 달라질 수 있습니다.
+    세무전문가에게 확인하시고 결정하시기 바랍니다.
+  </div>
+
+</div>
+
+<!-- 푸터 -->
+<footer style="background:#0d2a5e;padding:36px 32px;display:flex;align-items:flex-start;
+  justify-content:space-between;flex-wrap:wrap;gap:24px;margin-top:0">
+  <div>
+    <div style="color:#fff;font-size:15px;font-weight:600;margin-bottom:10px">세무사 이정란사무소</div>
+    <div style="font-size:12px;color:#7a9cc8;line-height:2">
+      📍 서울특별시 노원구 상계동<br>
+      📞 02-935-0280 &nbsp;|&nbsp; 📠 FAX 02-935-0280<br>
+      ✉️ jrleetax@gmail.com<br>
+      💬 카카오채널: pf.kakao.com/_jfhxcj<br>
+      📝 네이버 블로그: <a href="http://blog.naver.com/jrleetaxdr" target="_blank" style="color:#a8c4f0">blog.naver.com/jrleetaxdr</a>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;text-align:right">
+    <a href="calculators.html" style="font-size:12px;color:#7a9cc8;text-decoration:none">세금 계산기</a>
+    <a href="index.html#about" style="font-size:12px;color:#7a9cc8;text-decoration:none">세무사 소개</a>
+    <a href="index.html#services" style="font-size:12px;color:#7a9cc8;text-decoration:none">서비스 안내</a>
+    <a href="http://blog.naver.com/jrleetaxdr" target="_blank" style="font-size:12px;color:#7a9cc8;text-decoration:none">네이버 블로그 →</a>
+    <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" style="font-size:12px;color:#7a9cc8;text-decoration:none">카카오 상담 →</a>
+  </div>
+  <div style="width:100%;border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;
+    font-size:11px;color:#4a6080;text-align:center">
+    © 2025 세무사 이정란사무소. 본 사이트의 계산기는 참고용이며, 실제 세액은 담당 세무사의 검토가 필요합니다.
+  </div>
+</footer>
+</body>
+</html>

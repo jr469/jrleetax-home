@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>임원퇴직급여 계산기 v3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f5f5f0;color:#1a1a1a;padding:1rem}
+.app{max-width:980px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin-bottom:1rem;padding-bottom:10px;border-bottom:2px solid #333}
+h3{font-size:14px;font-weight:600;color:#333;margin:1rem 0 8px;display:flex;align-items:center;gap:6px}
+h3:first-child{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:660px){.grid2{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem}
+.inp-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;gap:8px;min-height:36px}
+.inp-row:last-child{border-bottom:none}
+.inp-row label{font-size:13px;color:#555;flex-shrink:0}
+.val{font-size:13px;font-weight:600;color:#1a1a1a}
+.val.green{color:#0a7a55}
+.val.red{color:#c0392b}
+input[type=text],input[type=date],input[type=number]{background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 8px;font-size:13px;color:#1a1a1a;text-align:right;width:150px;font-family:inherit}
+input[type=text]:not(.commaInput){text-align:left}
+input:focus{outline:none;border-color:#f57f17;box-shadow:0 0 0 2px rgba(249,168,37,0.2)}
+.commaInput{background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 8px;font-size:13px;color:#1a1a1a;text-align:right;width:150px;font-family:inherit;}
+.commaInput:focus{outline:none;border-color:#f57f17;box-shadow:0 0 0 2px rgba(249,168,37,0.2);}
+
+.badge{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600}
+.badge-in{background:#fff9c4;color:#7b6a00}
+.badge-auto{background:#e1f5ee;color:#0a7a55}
+.badge-step{background:#ede7f6;color:#4527a0}
+.row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.row:last-child{border-bottom:none}
+.lbl{font-size:13px;color:#555;min-width:170px}
+.total-box{background:#f0faf5;border:1px solid #a8d5c0;border-radius:8px;padding:10px 14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between}
+.btn{background:#fff;border:1.5px solid #aaa;border-radius:7px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#e1f5ee;border-color:#5dcaa5;color:#085041}
+.btn-primary:hover{background:#c8edd9}
+.btn-secondary{background:#f3f0fd;border-color:#b0a8e0;color:#4527a0}
+.btn-secondary:hover{background:#e9e3f8}
+.btn-danger{background:#fff5f5;border-color:#e88;color:#800}
+.note{font-size:11px;color:#999;margin-top:4px;line-height:1.5}
+.process-card{background:#fafaf8;border:1px solid #e0ddd8;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem}
+.process-title{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:1rem;padding-bottom:8px;border-bottom:1.5px solid #e0ddd8;display:flex;align-items:center;gap:8px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{border-radius:8px;overflow:hidden;border:1px solid #e0ddd8}
+.step-header{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f0ede8;border-bottom:1px solid #e0ddd8}
+.step-num{width:22px;height:22px;border-radius:50%;background:#534ab7;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:13px;font-weight:600;color:#333;flex:1}
+.step-result{font-size:13px;font-weight:700;color:#534ab7;white-space:nowrap}
+.step-body{padding:10px 12px;background:#fff}
+.step-body .formula{font-size:12px;color:#555;background:#f5f3ff;padding:7px 10px;border-radius:5px;border-left:3px solid #b0a8e0;margin-bottom:8px;line-height:1.8}
+.step-body table{width:100%;border-collapse:collapse;font-size:12px}
+.step-body table td{padding:4px 8px;border-bottom:1px solid #f5f5f0;color:#444;vertical-align:middle}
+.step-body table td:last-child{text-align:right;font-weight:600;color:#1a1a1a;white-space:nowrap}
+.step-body table tr:last-child td{border-bottom:none}
+.hi{background:#f3f0fd !important}
+.hi td{color:#4527a0 !important}
+.hi td:last-child{color:#4527a0 !important}
+.sub-title{font-size:11px;font-weight:600;color:#888;margin:8px 0 4px;letter-spacing:0.3px}
+table.rt{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+table.rt th{background:#f5f5f0;color:#555;padding:7px 8px;text-align:right;font-weight:600;border:1px solid #ddd}
+table.rt th:first-child{text-align:left}
+table.rt td{padding:6px 8px;text-align:right;border:1px solid #eee;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+table.rt td:first-child{text-align:center}
+.del-btn{background:none;border:none;color:#c0392b;cursor:pointer;font-size:12px;padding:2px 8px;font-family:inherit}
+.save-status{font-size:12px;color:#777;margin-top:6px;min-height:18px}
+.no-data{text-align:center;color:#aaa;padding:16px;font-size:13px}
+.rate-row{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:12px}
+.rate-bar{height:12px;background:#ccc;border-radius:2px}
+.rate-active{background:#534ab7 !important}
+.rate-label{color:#555;min-width:130px;font-size:11px}
+.rate-pct{font-weight:600;color:#444;min-width:30px;font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>임원퇴직급여 계산기 v3</h1>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>기본 정보 <span class="badge badge-in">입력</span></h3>
+      <div class="inp-row"><label>회사명</label><input type="text" id="companyName" placeholder="회사명 입력"></div>
+      <div class="inp-row"><label>입사일</label>
+  <div style="display:flex;align-items:center;gap:4px">
+    <input type="text" id="joinY" placeholder="YYYY" maxlength="4" inputmode="numeric" style="width:52px;text-align:center;background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 4px;font-size:13px">
+    <span style="color:#aaa;font-size:12px">-</span>
+    <input type="text" id="joinM" placeholder="MM" maxlength="2" inputmode="numeric" style="width:36px;text-align:center;background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 4px;font-size:13px">
+    <span style="color:#aaa;font-size:12px">-</span>
+    <input type="text" id="joinD" placeholder="DD" maxlength="2" inputmode="numeric" style="width:36px;text-align:center;background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 4px;font-size:13px">
+  </div>
+</div>
+      <div class="inp-row"><label>퇴사일</label>
+  <div style="display:flex;align-items:center;gap:4px">
+    <input type="text" id="retireY" placeholder="YYYY" maxlength="4" inputmode="numeric" style="width:52px;text-align:center;background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 4px;font-size:13px">
+    <span style="color:#aaa;font-size:12px">-</span>
+    <input type="text" id="retireM" placeholder="MM" maxlength="2" inputmode="numeric" style="width:36px;text-align:center;background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 4px;font-size:13px">
+    <span style="color:#aaa;font-size:12px">-</span>
+    <input type="text" id="retireD" placeholder="DD" maxlength="2" inputmode="numeric" style="width:36px;text-align:center;background:#fffde7;border:1.5px solid #f9a825;border-radius:6px;padding:4px 4px;font-size:13px">
+  </div>
+</div>
+      <div class="inp-row"><label>근무월수</label><span class="val" id="workMonths">-</span></div>
+      <div class="inp-row"><label>근무연수</label><span class="val" id="workYears">-</span></div>
+      <div class="inp-row"><label>정관배수</label><input type="number" id="statMultiple" value="3" placeholder="예: 3" style="width:80px"></div>
+      <div class="inp-row"><label>세법상 임원퇴직금 배수</label><input type="number" id="taxMultiple" value="3" placeholder="예: 3" style="width:80px"></div>
+      <h3 style="margin-top:1.2rem">퇴직전 3년 평균급여 <span class="badge badge-in">입력</span></h3>
+      <div class="inp-row"><label>퇴직전 1년</label><input type="text" id="sal1" class="commaInput" placeholder="0" inputmode="numeric"></div>
+      <div class="inp-row"><label>퇴직전 2년</label><input type="text" id="sal2" class="commaInput" placeholder="0" inputmode="numeric"></div>
+      <div class="inp-row"><label>퇴직전 3년</label><input type="text" id="sal3" class="commaInput" placeholder="0" inputmode="numeric"></div>
+      <p class="note">※ 근속기간 3년 미만인 경우 해당 월수로 연평균 계산</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div class="card">
+        <h3>2019년 이전 입사한 경우 <span class="badge badge-in">입력</span></h3>
+        <p class="note" style="margin-bottom:8px">※ 소법 22조 한도계산시 필요</p>
+        <div class="inp-row"><label>2017년 급여</label><input type="text" id="sal2017" class="commaInput" placeholder="0" inputmode="numeric"></div>
+        <div class="inp-row"><label>2018년 급여</label><input type="text" id="sal2018" class="commaInput" placeholder="0" inputmode="numeric"></div>
+        <div class="inp-row"><label>2019년 급여</label><input type="text" id="sal2019" class="commaInput" placeholder="0" inputmode="numeric"></div>
+      </div>
+      <div class="card">
+        <h3>요약 결과 <span class="badge badge-auto">자동 계산</span></h3>
+        <div class="row"><span class="lbl">정관상 임원퇴직급여</span><span class="val green" id="r_charter">-</span></div>
+        <div class="row"><span class="lbl">세법상 임원퇴직금 한도</span><span class="val" id="r_taxlimit">-</span></div>
+        <div class="row"><span class="lbl">한도초과액 (근로소득 과세)</span><span class="val red" id="r_excess">-</span></div>
+        <div class="row"><span class="lbl">퇴직소득세 (지방세 포함)</span><span class="val green" id="r_retire_tax">-</span></div>
+        <div class="row"><span class="lbl">한도초과 근로소득세 (지방세 포함)</span><span class="val red" id="r_labor_tax">-</span></div>
+        <div class="row"><span class="lbl">총 부담세액</span><span class="val" id="r_total_tax">-</span></div>
+        <div class="row"><span class="lbl">총 세부담율</span><span class="val" id="r_tax_rate">-</span></div>
+        <div class="total-box">
+          <span style="font-size:14px;font-weight:600">정관상 퇴직소득</span>
+          <span style="font-size:17px;font-weight:700;color:#0a7a55" id="r_retire_income">-</span>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="saveResult()">이 결과 저장</button>
+          <span class="save-status" id="saveStatus"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 퇴직소득세 계산과정 -->
+  
+<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <h3 style="margin:0">계산 결과 저장 목록</h3>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-secondary" style="font-size:12px;padding:5px 12px" onclick="exportJson()">JSON 내보내기</button>
+        <button class="btn" style="font-size:12px;padding:5px 12px" onclick="openJsonImport()">JSON 불러오기</button>
+        <button class="btn btn-danger" style="font-size:12px;padding:5px 12px" onclick="clearAll()">전체 삭제</button>
+        <input type="file" id="jsonFileInput" accept=".json,application/json" style="display:none">
+      </div>
+    </div>
+    <div class="save-status" id="jsonStatus" style="text-align:right"></div>
+    <div style="overflow-x:auto">
+      <table class="rt">
+        <thead>
+          <tr>
+            <th style="text-align:left;width:110px">회사명</th>
+            <th style="text-align:left;width:60px">정관배수</th>
+            <th style="width:80px">근속연수</th>
+            <th style="width:120px">3년평균급여</th>
+            <th style="width:120px">퇴직소득</th>
+            <th style="width:120px">퇴직소득세</th>
+            <th style="width:120px">근로소득세</th>
+            <th style="width:120px">총부담세액</th>
+            <th style="width:70px">세부담율</th>
+            <th style="width:130px">세부담후수령액</th>
+            <th style="width:120px">관리</th>
+          </tr>
+        </thead>
+        <tbody id="savedBody">
+          <tr><td colspan="11" class="no-data">저장된 결과가 없습니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="process-card" id="processSection" style="display:none">
+    <div class="process-title">
+      <span class="badge badge-step">STEP</span>
+      퇴직소득세 계산 과정 — 연분연승법 (소득세법 기준)
+    </div>
+    <div class="steps" id="stepsContainer"></div>
+  </div>
+
+  <!-- 한도초과 근로소득세 계산과정 -->
+  <div class="process-card" id="laborSection" style="display:none">
+    <div class="process-title">
+      <span class="badge badge-step">STEP</span>
+      한도초과분 근로소득세 계산 과정
+    </div>
+    <div class="steps" id="laborStepsContainer"></div>
+  </div>
+
+  
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const SKEY='retire_calc_v3';
+
+function fmt(n){
+  if(n===null||n===undefined||isNaN(n))return'-';
+  return Math.round(n).toLocaleString('ko-KR')+'원';
+}
+
+function calcWorkMonths(join,retire){
+  if(!join||!retire)return null;
+  const j=new Date(join),r=new Date(retire);
+  if(r<=j)return null;
+  let m=(r.getFullYear()-j.getFullYear())*12+(r.getMonth()-j.getMonth());
+  // 소득세법: 1개월 미만은 1개월로 올림
+  if(r.getDate()>j.getDate())m++;
+  return m<1?1:m;
+}
+
+function getWorkYears(months){
+  // 근속연수: 월수 ÷ 12 소수점 그대로 사용 (1개월 미만 제외는 calcWorkMonths에서 처리됨)
+  return Math.ceil(months/12);
+}
+
+function getAvgSal(s1,s2,s3,periodMonths){
+  // 해당 기간 월수가 36개월(3년) 미만이면 해당 월수로 연평균 계산
+  const total=Math.min(periodMonths||36,36);
+  if(total>=36)return(s1+s2+s3)/3;
+  return(s1+s2+s3)/total*12;
+}
+
+/* ── 근속연수공제 (2023.1.1 개정 후 기준) ── */
+function calcYearsDeduction(years){
+  if(years<=5)  return years*1000000;
+  if(years<=10) return 5000000+(years-5)*2000000;
+  if(years<=20) return 15000000+(years-10)*2500000;
+  return 40000000+(years-20)*3000000;
+}
+
+/* ── 환산급여공제(차등공제) ── */
+function calcHwansanDeduction(hwansan){
+  if(hwansan<=8000000) return hwansan;
+  if(hwansan<=70000000) return 8000000+(hwansan-8000000)*0.6;
+  if(hwansan<=100000000) return 45200000+(hwansan-70000000)*0.55;
+  if(hwansan<=300000000) return 61700000+(hwansan-100000000)*0.45;
+  return 151700000+(hwansan-300000000)*0.35;
+}
+
+/* ── 세율 구간 ── */
+const BRACKETS=[
+  {limit:14000000,  rate:0.06, base:0,         prev:0},
+  {limit:50000000,  rate:0.15, base:840000,     prev:14000000},
+  {limit:88000000,  rate:0.24, base:6240000,    prev:50000000},
+  {limit:150000000, rate:0.35, base:15360000,   prev:88000000},
+  {limit:300000000, rate:0.38, base:37060000,   prev:150000000},
+  {limit:500000000, rate:0.40, base:94060000,   prev:300000000},
+  {limit:Infinity,  rate:0.42, base:174060000,  prev:500000000}
+];
+const BLABELS=['1,400만원 이하','1,400만~5,000만원','5,000만~8,800만원','8,800만~1.5억','1.5억~3억','3억~5억','5억 초과'];
+const BRATES=['6%','15%','24%','35%','38%','40%','42%'];
+
+function applyBracket(amount){
+  if(amount<=0)return{tax:0,idx:-1,rate:0};
+  let idx=BRACKETS.findIndex(b=>amount<=b.limit);
+  if(idx<0)idx=BRACKETS.length-1;
+  const b=BRACKETS[idx];
+  return{tax:b.base+(amount-b.prev)*b.rate, idx, rate:b.rate};
+}
+
+function renderBrackets(idx){
+  return BRACKETS.map((b,i)=>`
+    <div class="rate-row">
+      <span class="rate-label">${BLABELS[i]}</span>
+      <span class="rate-pct">${BRATES[i]}</span>
+      <div class="rate-bar ${i===idx?'rate-active':''}" style="width:${20+i*14}px"></div>
+      ${i===idx?'<span style="font-size:11px;color:#534ab7;font-weight:700">← 적용 구간</span>':''}
+    </div>`).join('');
+}
+
+/* ── 퇴직소득세 상세 계산 (연분연승) ── */
+function calcRetireTaxDetail(income, months){
+  const years=getWorkYears(months);
+  // 1. 근속연수공제
+  const yearsDeduction=calcYearsDeduction(years);
+  // 2. 퇴직소득과세표준
+  const taxBase=Math.max(income-yearsDeduction,0);
+  // 3. 환산급여 (연분: ÷근속연수 × 12)
+  const hwansan=taxBase/years*12;
+  // 4. 환산급여공제(차등공제)
+  const hwansanDeduction=calcHwansanDeduction(hwansan);
+  // 5. 환산급여 과세표준
+  const hwansanTaxBase=Math.max(hwansan-hwansanDeduction,0);
+  // 6. 환산산출세액
+  const {tax:hwansanTax, idx}=applyBracket(hwansanTaxBase);
+  // 7. 연승: × 근속연수 / 12
+  const tax=hwansanTax/12*years;
+  // 8. 지방소득세
+  const localTax=tax*0.1;
+  const total=tax+localTax;
+  return{years,yearsDeduction,taxBase,hwansan,hwansanDeduction,hwansanTaxBase,hwansanTax,tax,localTax,total,idx};
+}
+
+/* ── 근로소득세 상세 계산 (한도초과분) ── */
+function calcLaborTaxDetail(excess){
+  if(excess<=0)return null;
+  // 근로소득공제 (총급여 기준 구간별)
+  let deduction=0;
+  if(excess<=5000000)          deduction=excess*0.7;
+  else if(excess<=15000000)    deduction=3500000+(excess-5000000)*0.4;
+  else if(excess<=45000000)    deduction=7500000+(excess-15000000)*0.15;
+  else if(excess<=100000000)   deduction=12000000+(excess-45000000)*0.05;
+  else                          deduction=14750000+(excess-100000000)*0.02;
+  deduction=Math.min(deduction,20000000); // 한도 2,000만원
+  const basicDed=1500000; // 기본공제 150만원
+  const taxBase=Math.max(excess-deduction-basicDed,0);
+  const {tax,idx}=applyBracket(taxBase);
+  const localTax=tax*0.1;
+  const total=tax+localTax;
+  return{excess,deduction,taxBase,tax,localTax,total,idx};
+}
+
+/* ── 세법상 한도 ── */
+function calcTaxLimit(s1,s2,s3,months,taxMult,s2017,s2018,s2019,joinDate,retireDate){
+  if(!joinDate||!retireDate)return{limit:0};
+  const j=new Date(joinDate);
+  if(j>=new Date('2020-01-01')){
+    // 2020년 이후 입사: 전체 기간이 3년 미만이면 해당 월수로 연평균
+    const avgSal2020=getAvgSal(s1,s2,s3,months);
+    const part2=avgSal2020/10*(months/12)*taxMult;
+    return{limit:part2, m2019:0, m2020:months, avg3old:0, avgSal2020, part1:0, part2};
+  }
+  const m2019=calcWorkMonths(joinDate,'2019-12-31')||0;
+  const m2020=Math.max(months-m2019,0);
+
+  // 2019년 이전 기간: 해당 기간(m2019)이 3년 미만이면 해당 월수로 연평균
+  const avg3old = m2019 >= 36
+    ? (s2017+s2018+s2019)/3
+    : (s2017+s2018+s2019)/m2019*12;
+
+  // 2020년 이후 기간: 해당 기간(m2020)이 3년 미만이면 해당 월수로 연평균
+  const avgSal2020 = m2020 > 0 ? getAvgSal(s1,s2,s3,m2020) : 0;
+
+  const part1=avg3old/10*(m2019/12)*3;
+  const part2=m2020>0 ? avgSal2020/10*(m2020/12)*taxMult : 0;
+  return{limit:part1+part2, m2019, m2020, avg3old, avgSal2020, part1, part2};
+}
+
+/* ── 계산과정 렌더링 ── */
+function buildRetireSteps(income, months, rd, charter, taxLimit, tl, avgSal, s1, s2, s3, taxMult, s2017, s2018, s2019){
+  const limitSteps=[];
+  if(taxMult){
+    if((tl.m2019||0)>0 && (tl.m2020||0)>0){
+      limitSteps.push({
+        num:'한도①', title:'세법상 한도 — 2019년 이전 기간 연평균급여',
+        result:fmt(tl.avg3old)+' /년',
+        body:`
+          <div class="formula">2019년 이전 근무기간 ${tl.m2019}개월 → ${tl.m2019<36?'3년 미만: 해당 월수('+tl.m2019+'개월)로 연평균 계산':'3년 이상: 단순 3년 평균'}</div>
+          <table>
+            <tr><td>2017년 급여</td><td>${fmt(s2017||0)}</td></tr>
+            <tr><td>2018년 급여</td><td>${fmt(s2018||0)}</td></tr>
+            <tr><td>2019년 급여</td><td>${fmt(s2019||0)}</td></tr>
+            <tr><td>합계</td><td>${fmt((s2017||0)+(s2018||0)+(s2019||0))}</td></tr>
+            <tr class="hi"><td>연평균급여 (÷${Math.min(tl.m2019,36)}개월×12)</td><td>${fmt(tl.avg3old)}</td></tr>
+          </table>`
+      });
+      limitSteps.push({
+        num:'한도②', title:'세법상 한도 — 2020년 이후 기간 연평균급여',
+        result:fmt(tl.avgSal2020)+' /년',
+        body:`
+          <div class="formula">2020년 이후 근무기간 ${tl.m2020}개월 → ${tl.m2020<36?'3년 미만: 해당 월수('+tl.m2020+'개월)로 연평균 계산':'3년 이상: 단순 3년 평균'}</div>
+          <table>
+            <tr><td>퇴직전 1년 급여</td><td>${fmt(s1)}</td></tr>
+            <tr><td>퇴직전 2년 급여</td><td>${fmt(s2)}</td></tr>
+            <tr><td>퇴직전 3년 급여</td><td>${fmt(s3)}</td></tr>
+            <tr><td>합계</td><td>${fmt(s1+s2+s3)}</td></tr>
+            <tr class="hi"><td>연평균급여 (÷${Math.min(tl.m2020,36)}개월×12)</td><td>${fmt(tl.avgSal2020)}</td></tr>
+          </table>`
+      });
+      limitSteps.push({
+        num:'한도③', title:'세법상 한도 — 기간별 합산',
+        result:fmt(taxLimit),
+        body:`
+          <div class="formula">
+            한도 = (2019이전 평균×1/10×이전월수/12×3배) + (2020이후 평균×1/10×이후월수/12×${taxMult}배)
+          </div>
+          <table>
+            <tr><td>2019년 이전 한도 (×3배)</td><td>${fmt(tl.part1)}</td></tr>
+            <tr><td>2020년 이후 한도 (×${taxMult}배)</td><td>${fmt(tl.part2)}</td></tr>
+            <tr class="hi"><td>세법상 임원퇴직금 한도 합계</td><td>${fmt(taxLimit)}</td></tr>
+            <tr><td>정관상 퇴직급여</td><td>${fmt(charter)}</td></tr>
+            <tr><td style="color:${charter>taxLimit?'#c0392b':'#0a7a55'}">${charter>taxLimit?'한도초과액 (근로소득 과세)':'한도이내 (전액 퇴직소득)'}</td>
+                <td style="color:${charter>taxLimit?'#c0392b':'#0a7a55'}">${charter>taxLimit?fmt(charter-taxLimit):'0원'}</td></tr>
+          </table>`
+      });
+    } else {
+      const periodM=(tl.m2019||0)>0?(tl.m2019||0):(tl.m2020||months);
+      const usedAvg=(tl.m2019||0)>0?(tl.avg3old||0):(tl.avgSal2020||(s1+s2+s3)/3);
+      limitSteps.push({
+        num:'한도①', title:'세법상 한도 — 연평균급여 계산',
+        result:fmt(usedAvg)+' /년',
+        body:`
+          <div class="formula">근무기간 ${periodM}개월 → ${periodM<36?'3년 미만: 해당 월수('+periodM+'개월)로 연평균 계산':'3년 이상: 단순 3년 평균'}</div>
+          <table>
+            <tr><td>퇴직전 1년 급여</td><td>${fmt(s1)}</td></tr>
+            <tr><td>퇴직전 2년 급여</td><td>${fmt(s2)}</td></tr>
+            <tr><td>퇴직전 3년 급여</td><td>${fmt(s3)}</td></tr>
+            <tr class="hi"><td>연평균급여 (÷${Math.min(periodM,36)}개월×12)</td><td>${fmt(usedAvg)}</td></tr>
+          </table>`
+      });
+      limitSteps.push({
+        num:'한도②', title:'세법상 한도 산출',
+        result:fmt(taxLimit),
+        body:`
+          <div class="formula">연평균급여 × 1/10 × 근무월수/12 × ${taxMult}배</div>
+          <table>
+            <tr><td>연평균급여</td><td>${fmt(usedAvg)}</td></tr>
+            <tr><td>근무월수</td><td>${periodM}개월</td></tr>
+            <tr><td>배수</td><td>${taxMult}배</td></tr>
+            <tr class="hi"><td>세법상 한도</td><td>${fmt(taxLimit)}</td></tr>
+            <tr><td>정관상 퇴직급여</td><td>${fmt(charter)}</td></tr>
+            <tr><td style="color:${charter>taxLimit?'#c0392b':'#0a7a55'}">${charter>taxLimit?'한도초과액':'한도이내'}</td>
+                <td style="color:${charter>taxLimit?'#c0392b':'#0a7a55'}">${charter>taxLimit?fmt(charter-taxLimit):'0원'}</td></tr>
+          </table>`
+      });
+    }
+  }
+  return [
+    ...limitSteps,
+    {
+      num:1, title:'근속연수 확정',
+      result:rd.years.toFixed(2)+'년',
+      body:`
+        <div class="formula">근속연수 = 근무월수 ÷ 12 (소수점 적용, 1개월 미만 제외)</div>
+        <table>
+          <tr><td>근무월수</td><td>${months}개월</td></tr>
+          <tr class="hi"><td>근속연수</td><td>${rd.years.toFixed(2)}년 (${months}개월 ÷ 12)</td></tr>
+        </table>`
+    },
+    {
+      num:2, title:'근속연수공제 계산',
+      result:fmt(rd.yearsDeduction),
+      body:`
+        <div class="formula">
+          5년 이하: 100만원 × 근속연수<br>
+          5년~10년: 500만원 + 200만원 × (근속연수 - 5)<br>
+          10년~20년: 1,500만원 + 250만원 × (근속연수 - 10)<br>
+          20년 초과: 4,000만원 + 300만원 × (근속연수 - 20)<br>
+          <span style="color:#888">(2023.1.1 개정 후 기준)</span>
+        </div>
+        <table>
+          <tr><td>퇴직소득금액</td><td>${fmt(income)}</td></tr>
+          <tr class="hi"><td>근속연수공제</td><td>- ${fmt(rd.yearsDeduction)}</td></tr>
+          <tr><td>퇴직소득 과세표준</td><td>${fmt(rd.taxBase)}</td></tr>
+        </table>`
+    },
+    {
+      num:3, title:'환산급여 산출 (연분)',
+      result:fmt(rd.hwansan),
+      body:`
+        <div class="formula">환산급여 = 퇴직소득 과세표준 ÷ 근속연수 × 12</div>
+        <table>
+          <tr><td>퇴직소득 과세표준</td><td>${fmt(rd.taxBase)}</td></tr>
+          <tr><td>근속연수</td><td>${rd.years.toFixed(2)}년</td></tr>
+          <tr class="hi"><td>환산급여</td><td>${fmt(rd.hwansan)}</td></tr>
+        </table>`
+    },
+    {
+      num:4, title:'환산급여공제 (차등공제) 계산',
+      result:fmt(rd.hwansanDeduction),
+      body:`
+        <div class="formula">
+          800만원 이하: 전액<br>
+          800만~7,000만원: 800만 + 초과분 × 60%<br>
+          7,000만~1억: 4,520만 + 초과분 × 55%<br>
+          1억~3억: 6,170만 + 초과분 × 45%<br>
+          3억 초과: 15,170만 + 초과분 × 35%
+        </div>
+        <table>
+          <tr><td>환산급여</td><td>${fmt(rd.hwansan)}</td></tr>
+          <tr class="hi"><td>환산급여공제</td><td>- ${fmt(rd.hwansanDeduction)}</td></tr>
+          <tr><td>환산급여 과세표준</td><td>${fmt(rd.hwansanTaxBase)}</td></tr>
+        </table>`
+    },
+    {
+      num:5, title:'세율 적용 — 환산산출세액',
+      result:fmt(rd.hwansanTax),
+      body:`
+        <div class="formula">환산급여 과세표준에 누진세율 적용</div>
+        ${renderBrackets(rd.idx)}
+        <table style="margin-top:8px">
+          <tr><td>환산급여 과세표준</td><td>${fmt(rd.hwansanTaxBase)}</td></tr>
+          <tr class="hi"><td>환산산출세액</td><td>${fmt(rd.hwansanTax)}</td></tr>
+        </table>`
+    },
+    {
+      num:6, title:'역산 — 퇴직소득 산출세액 (연승)',
+      result:fmt(rd.tax),
+      body:`
+        <div class="formula">산출세액 = 환산산출세액 ÷ 12 × 근속연수</div>
+        <table>
+          <tr><td>환산산출세액</td><td>${fmt(rd.hwansanTax)}</td></tr>
+          <tr><td>근속연수</td><td>${rd.years.toFixed(2)}년</td></tr>
+          <tr class="hi"><td>퇴직소득 산출세액</td><td>${fmt(rd.tax)}</td></tr>
+        </table>`
+    },
+    {
+      num:7, title:'지방소득세 가산 — 최종 퇴직소득세',
+      result:fmt(rd.total),
+      body:`
+        <div class="formula">최종 퇴직소득세 = 산출세액 × 1.1 (지방소득세 10% 포함)</div>
+        <table>
+          <tr><td>산출세액 (소득세)</td><td>${fmt(rd.tax)}</td></tr>
+          <tr><td>지방소득세 (10%)</td><td>${fmt(rd.localTax)}</td></tr>
+          <tr class="hi"><td>최종 퇴직소득세</td><td>${fmt(rd.total)}</td></tr>
+        </table>`
+    }
+  ];
+}
+
+function buildLaborSteps(ld){
+  return [
+    {
+      num:1, title:'한도초과액 확정 — 근로소득으로 과세 (소법 22조 ③)',
+      result:fmt(ld.excess),
+      body:`
+        <div class="formula">정관상 퇴직급여가 세법상 한도를 초과하는 금액은 근로소득으로 봄</div>
+        <table>
+          <tr class="hi"><td>한도초과액 (근로소득금액)</td><td>${fmt(ld.excess)}</td></tr>
+        </table>`
+    },
+    {
+      num:2, title:'근로소득공제 계산 (총급여 구간별)',
+      result:fmt(ld.deduction),
+      body:`
+        <div class="formula">
+          500만원 이하: × 70%<br>
+          500만~1,500만원: 350만 + 초과분 × 40%<br>
+          1,500만~4,500만원: 750만 + 초과분 × 15%<br>
+          4,500만~1억: 1,200만 + 초과분 × 5%<br>
+          1억 초과: 1,475만 + 초과분 × 2% (한도 2,000만원)
+        </div>
+        <table>
+          <tr><td>근로소득금액 (한도초과액)</td><td>${fmt(ld.excess)}</td></tr>
+          <tr class="hi"><td>근로소득공제</td><td>- ${fmt(ld.deduction)}</td></tr>
+          <tr><td>근로소득 과세표준</td><td>${fmt(ld.taxBase)}</td></tr>
+        </table>`
+    },
+    {
+      num:3, title:'세율 적용 — 산출세액',
+      result:fmt(ld.tax),
+      body:`
+        <div class="formula">근로소득 과세표준에 누진세율 적용</div>
+        ${renderBrackets(ld.idx)}
+        <table style="margin-top:8px">
+          <tr><td>근로소득 과세표준</td><td>${fmt(ld.taxBase)}</td></tr>
+          <tr class="hi"><td>산출세액</td><td>${fmt(ld.tax)}</td></tr>
+        </table>`
+    },
+    {
+      num:4, title:'지방소득세 가산 — 최종 근로소득세',
+      result:fmt(ld.total),
+      body:`
+        <div class="formula">최종 근로소득세 = 산출세액 × 1.1 (지방소득세 10% 포함)</div>
+        <table>
+          <tr><td>산출세액 (소득세)</td><td>${fmt(ld.tax)}</td></tr>
+          <tr><td>지방소득세 (10%)</td><td>${fmt(ld.localTax)}</td></tr>
+          <tr class="hi"><td>최종 근로소득세</td><td>${fmt(ld.total)}</td></tr>
+        </table>`
+    }
+  ];
+}
+
+function renderSteps(containerId, steps){
+  $(containerId).innerHTML=steps.map(s=>`
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">${s.num}</div>
+        <span class="step-title">${s.title}</span>
+        <span class="step-result">${s.result}</span>
+      </div>
+      <div class="step-body">${s.body}</div>
+    </div>`).join('');
+}
+
+let lastCalcData=null;
+
+function calc(){
+  try{ _calc(); } catch(e){ console.error('calc error:',e); }
+}
+function _calc(){
+  const join=getDateVal('join'), retire=getDateVal('retire');
+  const statMult=parseFloat($('statMultiple').value)||3;
+  const taxMult=parseFloat($('taxMultiple').value)||3;
+  const s1=parseComma('sal1');
+  const s2=parseComma('sal2');
+  const s3=parseComma('sal3');
+  const s2017=parseComma('sal2017');
+  const s2018=parseComma('sal2018');
+  const s2019=parseComma('sal2019');
+
+  const months=calcWorkMonths(join,retire);
+  if(months){
+    $('workMonths').textContent=months+'개월';
+    $('workYears').textContent=Math.ceil(months/12)+'년 ('+months+'개월)';
+  } else {
+    $('workMonths').textContent='-';
+    $('workYears').textContent='-';
+  }
+
+  const ids=['r_charter','r_taxlimit','r_excess','r_retire_tax','r_labor_tax','r_total_tax','r_tax_rate','r_retire_income'];
+  if(!months||!statMult||(!s1&&!s2&&!s3)){
+    ids.forEach(id=>$(id).textContent='-');
+    $('processSection').style.display='none';
+    $('laborSection').style.display='none';
+    lastCalcData=null;
+    return;
+  }
+
+  // 정관상 퇴직급여: 퇴직전 3년 평균급여 × 1/10 × 근속월수/12 × 배수
+  // 근속기간 3년 미만 여부와 무관하게 항상 입력값의 단순 3년 평균 사용
+  const avgSal=(s1+s2+s3)/3;
+  const charter=avgSal/10*(months/12)*statMult;
+  // 세법상 한도: 기간별로 각각 연평균 계산 (수정된 calcTaxLimit 사용)
+  const tlDetail=taxMult?calcTaxLimit(s1,s2,s3,months,taxMult,s2017,s2018,s2019,join,retire):{limit:charter,m2019:0,m2020:months,avg3old:0,avgSal2020:(s1+s2+s3)/3,part1:0,part2:charter};
+  const taxLimit=tlDetail.limit;
+  const retireIncome=Math.min(charter,taxLimit);
+  const excess=Math.max(charter-taxLimit,0);
+
+  const rd=calcRetireTaxDetail(retireIncome,months);
+  const ld=calcLaborTaxDetail(excess);
+  const totalTax=rd.total+(ld?ld.total:0);
+  const taxRate=charter>0?(totalTax/charter*100):0;
+
+  $('r_charter').textContent=fmt(charter);
+  $('r_taxlimit').textContent=taxMult?fmt(taxLimit):'-';
+  $('r_excess').textContent=excess>0?fmt(excess):'0원';
+  $('r_retire_income').textContent=fmt(charter);
+  $('r_retire_tax').textContent=fmt(rd.total);
+  $('r_labor_tax').textContent=ld?fmt(ld.total):'0원';
+  $('r_total_tax').textContent=fmt(totalTax);
+  $('r_tax_rate').textContent=taxRate.toFixed(2)+'%';
+
+  // 퇴직소득세 계산과정 (한도 계산 STEP 포함)
+  renderSteps('stepsContainer', buildRetireSteps(retireIncome, months, rd, charter, taxLimit, tlDetail, avgSal, s1, s2, s3, taxMult, s2017, s2018, s2019));
+  $('processSection').style.display='block';
+
+  // 근로소득세 계산과정 (초과분 있을 때만)
+  if(ld){
+    renderSteps('laborStepsContainer', buildLaborSteps(ld));
+    $('laborSection').style.display='block';
+  } else {
+    $('laborSection').style.display='none';
+  }
+
+  const takeHome=charter-(rd?rd.total:0)-(ld?ld.total:0);
+  const savedWorkYears=Math.ceil(months/12)+'년('+months+'개월)';
+  const savedAvgSal=fmt(avgSal);
+  lastCalcData={statMult,workYears:savedWorkYears,avgSal:savedAvgSal,charter:fmt(charter),retireIncome:fmt(charter),retireTax:fmt(rd.total),laborTax:ld?fmt(ld.total):'0원',totalTax:fmt(rd.total+(ld?ld.total:0)),taxRate:taxRate.toFixed(2)+'%',takeHome:fmt(takeHome)};
+}
+
+function saveResult(){
+  if(!lastCalcData){$('saveStatus').textContent='먼저 필수 항목을 입력하세요.';return;}
+  try{
+    const raw=localStorage.getItem(SKEY);
+    const rows=raw?JSON.parse(raw):[];
+    const formData=getFormData();
+    rows.push({id:Date.now(),company:(formData.companyName||'').trim(),...lastCalcData,formData});
+    localStorage.setItem(SKEY,JSON.stringify(rows));
+    renderSaved(rows);
+    $('saveStatus').textContent='저장 완료 (입력값 포함)';
+    setTimeout(()=>$('saveStatus').textContent='',2000);
+  }catch(e){$('saveStatus').textContent='저장 실패';}
+}
+
+function deleteRow(id){
+  try{
+    const raw=localStorage.getItem(SKEY);
+    let rows=raw?JSON.parse(raw):[];
+    rows=rows.filter(r=>r.id!==id);
+    localStorage.setItem(SKEY,JSON.stringify(rows));
+    renderSaved(rows);
+  }catch(e){}
+}
+
+function loadRow(id){
+  try{
+    const rows=getSavedRows();
+    const row=rows.find(r=>Number(r.id)===Number(id));
+    if(!row){$('saveStatus').textContent='해당 저장 항목을 찾을 수 없습니다.';return;}
+    if(!row.formData||typeof row.formData!=='object'){
+      $('saveStatus').textContent='이 항목에는 입력값이 저장되어 있지 않습니다.';
+      setTimeout(()=>$('saveStatus').textContent='',3000);
+      return;
+    }
+    restoreFormData(row.formData);
+    window.scrollTo({top:0,behavior:'smooth'});
+    $('saveStatus').textContent=(row.company?`'${row.company}' `:'')+'입력값을 불러왔습니다.';
+    setTimeout(()=>$('saveStatus').textContent='',3000);
+  }catch(e){$('saveStatus').textContent='불러오기에 실패했습니다.';}
+}
+
+function clearAll(){
+  if(!confirm('저장된 결과를 모두 삭제할까요?'))return;
+  localStorage.removeItem(SKEY);
+  renderSaved([]);
+}
+
+const FORM_IDS=[
+  'companyName','joinY','joinM','joinD','retireY','retireM','retireD',
+  'statMultiple','taxMultiple','sal1','sal2','sal3','sal2017','sal2018','sal2019'
+];
+
+function setJsonStatus(message,isError){
+  const el=$('jsonStatus');
+  if(!el)return;
+  el.textContent=message;
+  el.style.color=isError?'#c0392b':'#0a7a55';
+  clearTimeout(setJsonStatus.timer);
+  setJsonStatus.timer=setTimeout(()=>el.textContent='',4000);
+}
+
+function getFormData(){
+  return FORM_IDS.reduce((data,id)=>{
+    const el=$(id);
+    if(el)data[id]=el.value;
+    return data;
+  },{});
+}
+
+function restoreFormData(data){
+  if(!data||typeof data!=='object'||Array.isArray(data))return;
+  FORM_IDS.forEach(id=>{
+    const el=$(id);
+    if(el&&Object.prototype.hasOwnProperty.call(data,id)){
+      el.value=String(data[id]??'');
+    }
+  });
+  calc();
+}
+
+function getSavedRows(){
+  const raw=localStorage.getItem(SKEY);
+  const rows=raw?JSON.parse(raw):[];
+  return Array.isArray(rows)?rows:[];
+}
+
+function exportJson(){
+  try{
+    const payload={
+      format:'executive-retirement-calculator',
+      version:1,
+      exportedAt:new Date().toISOString(),
+      formData:getFormData(),
+      savedResults:getSavedRows()
+    };
+    const json=JSON.stringify(payload,null,2);
+    const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+    const company=($('companyName').value||'임원퇴직급여').trim().replace(/[\\/:*?"<>|]/g,'_');
+    const date=new Date().toISOString().slice(0,10);
+    link.href=url;
+    link.download=`${company}_${date}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setJsonStatus('JSON 파일을 내보냈습니다.');
+  }catch(e){
+    setJsonStatus('JSON 내보내기에 실패했습니다.',true);
+  }
+}
+
+function openJsonImport(){
+  const input=$('jsonFileInput');
+  input.value='';
+  input.click();
+}
+
+function normalizeImportedRows(rows){
+  if(!Array.isArray(rows))throw new Error('저장 목록 형식이 올바르지 않습니다.');
+  const fields=['statMult','workYears','avgSal','charter','retireIncome','retireTax','laborTax','totalTax','taxRate','takeHome'];
+  return rows.map((row,index)=>{
+    if(!row||typeof row!=='object'||Array.isArray(row))throw new Error('저장 항목 형식이 올바르지 않습니다.');
+    const clean={id:Date.now()+index};
+    fields.forEach(field=>{
+      if(Object.prototype.hasOwnProperty.call(row,field)){
+        clean[field]=String(row[field]??'');
+      }
+    });
+    if(row.formData&&typeof row.formData==='object'&&!Array.isArray(row.formData)){
+      clean.formData={};
+      FORM_IDS.forEach(fid=>{
+        if(Object.prototype.hasOwnProperty.call(row.formData,fid)){
+          clean.formData[fid]=String(row.formData[fid]??'');
+        }
+      });
+    }
+    if(row.company!=null)clean.company=String(row.company);
+    return clean;
+  });
+}
+
+async function importJsonFile(file){
+  if(!file)return;
+  try{
+    const parsed=JSON.parse(await file.text());
+    const isLegacy=Array.isArray(parsed);
+    if(!isLegacy&&(!parsed||parsed.format!=='executive-retirement-calculator')){
+      throw new Error('이 계산기에서 만든 JSON 파일이 아닙니다.');
+    }
+    const rows=normalizeImportedRows(isLegacy?parsed:parsed.savedResults);
+    if(!confirm(`JSON 파일의 저장 결과 ${rows.length}건을 불러오고 기존 목록을 교체할까요?`))return;
+    localStorage.setItem(SKEY,JSON.stringify(rows));
+    renderSaved(rows);
+    if(!isLegacy)restoreFormData(parsed.formData);
+    setJsonStatus(`JSON 불러오기 완료 (${rows.length}건)`);
+  }catch(e){
+    setJsonStatus(e.message||'JSON 불러오기에 실패했습니다.',true);
+  }
+}
+
+function escapeHtml(value){
+  return String(value??'').replace(/[&<>"']/g,char=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[char]);
+}
+
+function renderSaved(rows){
+  const tbody=$('savedBody');
+  if(!rows||!rows.length){
+    tbody.innerHTML='<tr><td colspan="11" class="no-data">저장된 결과가 없습니다</td></tr>';
+    return;
+  }
+  tbody.innerHTML=rows.map(r=>{
+    const company=r.company||(r.formData&&r.formData.companyName)||'';
+    const hasInputs=r.formData&&typeof r.formData==='object';
+    const loadBtn=hasInputs
+      ? `<button class="del-btn" style="color:#085041" onclick="loadRow(${Number(r.id)})">불러오기</button>`
+      : '';
+    return `
+    <tr>
+      <td style="text-align:left">${escapeHtml(company||'-')}</td>
+      <td style="text-align:center">${escapeHtml(r.statMult)}배</td>
+      <td>${escapeHtml(r.workYears||'-')}</td>
+      <td>${escapeHtml(r.avgSal||'-')}</td>
+      <td>${escapeHtml(r.retireIncome||r.charter||'-')}</td>
+      <td>${escapeHtml(r.retireTax||'-')}</td>
+      <td>${escapeHtml(r.laborTax||'-')}</td>
+      <td>${escapeHtml(r.totalTax||'-')}</td>
+      <td>${escapeHtml(r.taxRate||'-')}</td>
+      <td>${escapeHtml(r.takeHome||'-')}</td>
+      <td style="text-align:center;white-space:nowrap">${loadBtn}<button class="del-btn" onclick="deleteRow(${Number(r.id)})">삭제</button></td>
+    </tr>`;}).join('');
+}
+
+function loadData(){
+  try{
+    const raw=localStorage.getItem(SKEY);
+    renderSaved(raw?JSON.parse(raw):[]);
+  }catch(e){renderSaved([]);}
+}
+
+// window.storage 없는 환경(로컬 파일 실행 등) 대비 안전 초기화
+if(typeof window.storage==='undefined'){
+  window.storage={
+    get:async()=>null,
+    set:async()=>null,
+    delete:async()=>null
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  initApp();
+});
+// 혹시 DOMContentLoaded가 이미 지난 경우 즉시 실행
+if(document.readyState==='complete'||document.readyState==='interactive'){
+  setTimeout(initApp, 0);
+}
+
+function initApp(){
+  try{
+    ['statMultiple','taxMultiple'].forEach(id=>{
+      const el=$(id);
+      if(el) el.addEventListener('input',calc);
+    });
+    setupDateInput('join');
+    setupDateInput('retire');
+    ['sal1','sal2','sal3','sal2017','sal2018','sal2019'].forEach(id=>{
+      const el=$(id);
+      if(!el) return;
+      el.addEventListener('input',function(e){
+        const pos=this.selectionStart;
+        const raw=this.value.replace(/,/g,'').replace(/[^0-9]/g,'');
+        const formatted=raw?parseInt(raw,10).toLocaleString('ko-KR'):'';
+        const diff=formatted.length-this.value.length;
+        this.value=formatted;
+        try{this.setSelectionRange(pos+diff,pos+diff);}catch(e){}
+        calc();
+      });
+    });
+    const jsonFileInput=$('jsonFileInput');
+    if(jsonFileInput){
+      jsonFileInput.addEventListener('change',function(){
+        importJsonFile(this.files&&this.files[0]);
+      });
+    }
+    loadData();
+  }catch(e){ console.error('initApp error:',e); }
+}
+
+// 날짜 분리 입력 — 자동 커서 이동 + calc 트리거
+function getDateVal(prefix){
+  const y=$(`${prefix}Y`).value.trim();
+  const m=$(`${prefix}M`).value.trim();
+  const d=$(`${prefix}D`).value.trim();
+  if(y.length===4 && m.length>=1 && d.length>=1){
+    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+  return '';
+}
+function setupDateInput(prefix){
+  const yEl=$(`${prefix}Y`), mEl=$(`${prefix}M`), dEl=$(`${prefix}D`);
+  yEl.addEventListener('input',function(){
+    this.value=this.value.replace(/[^0-9]/g,'').slice(0,4);
+    if(this.value.length===4){ mEl.focus(); mEl.select(); }
+    calc();
+  });
+  mEl.addEventListener('input',function(){
+    this.value=this.value.replace(/[^0-9]/g,'').slice(0,2);
+    const v=parseInt(this.value)||0;
+    // 2자리 입력됐거나, 첫자리가 2~9면(2월~9월 한자리) 바로 이동
+    if(this.value.length===2||(this.value.length===1&&v>=2&&v<=9)){
+      dEl.focus(); dEl.select();
+    }
+    calc();
+  });
+  dEl.addEventListener('input',function(){
+    this.value=this.value.replace(/[^0-9]/g,'').slice(0,2);
+    calc();
+  });
+  // 백스페이스로 이전 필드로 이동
+  mEl.addEventListener('keydown',function(e){
+    if(e.key==='Backspace'&&this.value==='') yEl.focus();
+  });
+  dEl.addEventListener('keydown',function(e){
+    if(e.key==='Backspace'&&this.value==='') mEl.focus();
+  });
+}
+
+function parseComma(id){
+  const v=document.getElementById(id).value.replace(/,/g,'');
+  return parseFloat(v)||0;
+}
+function formatComma(val){
+  if(!val)return'';
+  const num=val.replace(/,/g,'').replace(/[^0-9]/g,'');
+  if(!num)return'';
+  return parseInt(num,10).toLocaleString('ko-KR');
+}
+var commaIds=['sal1','sal2','sal3','sal2017','sal2018','sal2019'];
+</script>
+</body>
+</html>

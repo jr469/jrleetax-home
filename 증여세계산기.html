@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>증여세 계산기 — 세무사 이정란사무소</title>
+<style>
+:root{
+  --navy:#0d2a5e;--navy2:#1a3f80;--accent:#185fa5;--accent-lt:#e6f1fb;
+  --ink:#12203a;--ink2:#3d4d68;--muted:#7a8699;--line:#dde3ec;
+  --bg:#f5f7fa;--card:#fff;
+  --green:#0f766e;--green-bg:#e9f6f4;
+  --warn:#b45309;--warn-bg:#fdf4e6;
+  --red:#b91c1c;--purple:#6d28d9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Malgun Gothic','맑은 고딕',-apple-system,sans-serif;
+  font-size:14px;line-height:1.6;color:var(--ink);background:var(--bg)}
+header{background:linear-gradient(180deg,var(--navy),var(--navy2));color:#fff;padding:18px 24px}
+header h1{font-size:19px;letter-spacing:-0.4px;margin-bottom:4px}
+header p{font-size:12px;color:#a8c4f0}
+header .back{font-size:12px;color:#a8c4f0;text-decoration:none;
+  display:inline-flex;align-items:center;gap:4px;margin-bottom:8px}
+header .back:hover{color:#fff}
+
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+.tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:8px 18px;border:1px solid var(--line);background:#fff;border-radius:6px;
+  cursor:pointer;font-size:13px;font-weight:600;color:var(--ink2)}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pane{display:none}.pane.on{display:block}
+
+.grid{display:grid;grid-template-columns:420px 1fr;gap:16px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px}
+.card h2{font-size:14px;font-weight:700;color:var(--ink);padding-bottom:10px;
+  border-bottom:2px solid var(--navy);margin-bottom:14px;letter-spacing:-0.3px}
+
+label{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin:10px 0 4px}
+input[type=text],input[type=number],select{
+  width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;
+  font-size:14px;font-family:inherit;background:#fff;color:var(--ink)}
+input[type=text].num{text-align:right;font-variant-numeric:tabular-nums}
+input:focus,select:focus{outline:2px solid #93c5fd;outline-offset:-1px;border-color:#93c5fd}
+
+.row{display:flex;gap:8px}.row>*{flex:1}
+.hint{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
+.calcbar{background:#eef2f7;border:1px solid var(--line);border-radius:6px;
+  padding:7px 12px;font-size:12px;font-weight:700;color:var(--ink);
+  display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.calcbar b{color:var(--green);font-size:14px}
+.calcbar em{font-style:normal;color:var(--muted);font-size:11px;font-weight:400}
+
+button{font-family:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);
+  background:#fff;padding:8px 14px;font-size:13px;font-weight:600;color:var(--ink2)}
+button.primary{background:var(--navy);color:#fff;border-color:var(--navy);
+  width:100%;padding:12px;font-size:15px;margin-top:8px}
+button:hover{filter:brightness(0.97)}
+.btns{display:flex;gap:6px;margin-top:8px}.btns button{flex:1}
+
+/* 관계 버튼 */
+.rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.rel-btn{padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:#fff;
+  cursor:pointer;font-size:12px;font-weight:600;color:var(--ink2);text-align:center;
+  transition:all 0.12s;line-height:1.4}
+.rel-btn:hover{border-color:var(--accent);background:var(--accent-lt)}
+.rel-btn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.rel-btn small{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:0.8}
+
+/* 공제 배지 */
+.deduct-badge{display:inline-flex;align-items:center;gap:6px;
+  background:var(--green-bg);border:1px solid #9fe1cb;border-radius:8px;
+  padding:8px 14px;font-size:13px;color:var(--green);font-weight:700;margin-top:8px}
+
+/* 결과 */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fff}
+.kpi .k{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.2px;margin-bottom:4px}
+.kpi .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-0.5px}
+.kpi.total{background:var(--navy);border-color:var(--navy);grid-column:span 2}
+.kpi.total .k{color:#a8c4f0}
+.kpi.total .v{color:#fff;font-size:26px}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);
+  text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left;font-variant-numeric:normal}
+thead th{background:#f8fafc;font-size:12px;color:var(--ink2);
+  border-bottom:2px solid var(--navy)}
+thead th:first-child{text-align:left}
+tr.total td{font-weight:800;font-size:15px;background:#fafbfd;
+  border-top:2px solid var(--navy);border-bottom:2px solid var(--navy)}
+tr.sub td{color:var(--ink2);font-size:12px}
+td.minus{color:var(--green);font-weight:700}
+
+.note{background:var(--warn-bg);border:1px solid #f0dcc0;border-radius:8px;
+  padding:10px 14px;font-size:12px;color:#7c4a10;margin-top:12px;line-height:1.6}
+.flags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.flag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;
+  background:#eef2f7;color:var(--ink2);border:1px solid var(--line)}
+.flag.info{background:var(--accent-lt);color:var(--accent);border-color:#b5d4f4}
+.flag.ok{background:var(--green-bg);color:var(--green);border-color:#9fe1cb}
+.flag.warn{background:var(--warn-bg);color:var(--warn);border-color:#f0dcc0}
+
+/* 공제표 */
+.deduct-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.deduct-tbl th{background:#f8fafc;font-size:12px;color:var(--ink2);
+  border-bottom:2px solid var(--navy);padding:8px 10px;text-align:left}
+.deduct-tbl td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.deduct-tbl tr.on td{background:var(--accent-lt);font-weight:600}
+
+.sec{margin:18px 0 8px;font-size:13px;color:var(--ink);
+  border-left:3px solid var(--navy);padding-left:8px;font-weight:700}
+.lawtbl th,.lawtbl td{text-align:left;font-size:12px;vertical-align:top;padding:8px 10px}
+.lawtbl th{white-space:nowrap;color:var(--ink2);font-weight:600}
+
+.kakao-btn{display:inline-flex;align-items:center;gap:8px;background:#FEE500;
+  color:#3A1D1D;border:none;border-radius:8px;padding:12px 24px;
+  font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;
+  width:100%;justify-content:center}
+.kakao-btn:hover{filter:brightness(0.97)}
+.disclaimer{font-size:11.5px;color:var(--muted);margin-top:20px;padding:12px 14px;
+  background:#fff;border:1px dashed var(--line);border-radius:8px;line-height:1.7}
+
+@media print{
+  header{background:var(--navy)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tabs,.btns,button,.back{display:none!important}
+  .pane{display:block!important}
+}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" class="back">← 세무사 이정란사무소 홈으로</a>
+  <h1>증여세 계산기</h1>
+  <p>2024년 현행 증여세법 기준 · 관계별 공제 자동 반영 · 세무사 이정란사무소 제공</p>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab on" data-t="calc">증여세 계산</div>
+    <div class="tab" data-t="deduct">공제 한도 안내</div>
+    <div class="tab" data-t="law">세율표 · 법령</div>
+  </div>
+
+  <!-- ===== 계산 탭 ===== -->
+  <div class="pane on" id="p-calc">
+  <div class="grid">
+
+    <!-- 입력 -->
+    <div>
+      <div class="card">
+        <h2>1. 증여자와의 관계</h2>
+        <div class="rel-grid" id="relGrid">
+          <button class="rel-btn on" data-rel="spouse" data-deduct="600000000">배우자<small>6억원 공제</small></button>
+          <button class="rel-btn" data-rel="child" data-deduct="50000000">직계존비속<small>5천만원 공제</small></button>
+          <button class="rel-btn" data-rel="child-minor" data-deduct="20000000">미성년자녀<small>2천만원 공제</small></button>
+          <button class="rel-btn" data-rel="relative6" data-deduct="10000000">기타친족<small>1천만원 공제</small></button>
+          <button class="rel-btn" data-rel="other" data-deduct="0">타인<small>공제 없음</small></button>
+          <button class="rel-btn" data-rel="custom" data-deduct="-1">직접입력<small>공제액 지정</small></button>
+        </div>
+        <div id="customWrap" style="display:none;margin-top:10px">
+          <label>공제액 직접 입력 (원)</label>
+          <input type="text" class="num" id="customDeduct" value="0">
+        </div>
+        <div class="deduct-badge" id="deductBadge">
+          ✓ 증여재산공제: <span id="deductAmt">6억원</span>
+        </div>
+        <div class="hint" style="margin-top:6px">10년 합산 공제 한도입니다. 10년 이내 동일인으로부터 받은 기존 증여액이 있으면 아래에서 입력하세요.</div>
+      </div>
+
+      <div class="card">
+        <h2>2. 증여 내역</h2>
+        <label>금회 증여가액 (원)</label>
+        <input type="text" class="num" id="giftAmt" value="500,000,000">
+        <div class="hint">증여일 현재 시가 기준. 부동산은 공시가격이 아닌 시가(실거래가·감정가)로 평가</div>
+
+        <label>10년 이내 기존 증여액 (동일인, 원)</label>
+        <input type="text" class="num" id="priorGift" value="0">
+        <div class="hint">같은 증여자로부터 10년 이내 받은 기존 증여액 합계 (이미 공제를 사용한 금액)</div>
+
+        <label>기존 증여에서 이미 사용한 공제액 (원)</label>
+        <input type="text" class="num" id="priorDeduct" value="0">
+        <div class="hint">10년 이내 기존 증여 시 공제받은 금액. 잔여 공제만 이번에 추가 사용 가능합니다.</div>
+
+        <div class="calcbar" id="baseInfo">과세표준 산출 중...</div>
+      </div>
+
+      <div class="card">
+        <h2>3. 추가 항목</h2>
+        <label>부담부증여 채무액 (원)</label>
+        <input type="text" class="num" id="debt" value="0">
+        <div class="hint">수증자가 인수하는 채무(임대보증금·저당권 등). 채무 상당액은 양도로 봐 증여자에게 양도소득세가 과세될 수 있습니다.</div>
+
+        <label>납부할 증여세에 대한 연부연납 여부</label>
+        <select id="installment">
+          <option value="0">해당 없음</option>
+          <option value="1">연부연납 신청 예정</option>
+        </select>
+        <div class="hint">납부세액 1천만원 초과 시 최대 5년 분할납부 신청 가능</div>
+
+        <button class="primary" id="btnCalc">증여세 계산하기</button>
+        <div class="btns">
+          <button id="btnSave">저장</button>
+          <button id="btnLoad">불러오기</button>
+          <button id="btnPrint">인쇄/PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div>
+      <div class="card">
+        <h2>계산 결과</h2>
+        <div id="msgBox" style="display:none;background:var(--warn-bg);border:1px solid #f0dcc0;
+          border-radius:8px;padding:10px 12px;font-size:13px;color:#7c4a10;margin-bottom:12px"></div>
+        <div class="flags" id="flags"></div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="k">증여재산가액</div><div class="v" id="kGift">-</div></div>
+          <div class="kpi"><div class="k">증여재산공제</div><div class="v" id="kDeduct" style="color:var(--green)">-</div></div>
+          <div class="kpi"><div class="k">과세표준</div><div class="v" id="kBase">-</div></div>
+          <div class="kpi"><div class="k">적용세율</div><div class="v" id="kRate">-</div></div>
+          <div class="kpi total"><div class="k">최종 납부세액 (신고세액공제 3% 차감)</div><div class="v" id="kFinal">-</div></div>
+        </div>
+        <table>
+          <thead><tr><th>구분</th><th>금액 (원)</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="note" id="noteBox" style="display:none"></div>
+
+        <!-- 분할증여 시뮬레이션 -->
+        <div id="splitSection" style="margin-top:16px;display:none">
+          <h2 style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;
+            padding-bottom:8px;border-bottom:2px solid var(--navy)">분할증여 절세 시뮬레이션</h2>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">
+            10년 단위로 나눠 증여하면 공제를 반복 활용해 세 부담을 줄일 수 있습니다.
+          </div>
+          <table>
+            <thead><tr><th>구분</th><th>1회 증여</th><th>2회 분할 (10년)</th><th>절세액</th></tr></thead>
+            <tbody id="splitBody"></tbody>
+          </table>
+        </div>
+
+        <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="kakao-btn">
+          💬 세무사에게 정확한 상담 받기
+        </a>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- ===== 공제 안내 탭 ===== -->
+  <div class="pane" id="p-deduct">
+    <div class="card">
+      <h2>관계별 증여재산공제 한도 (10년 합산)</h2>
+      <table class="deduct-tbl">
+        <thead>
+          <tr><th>증여자와의 관계</th><th>공제 한도</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>배우자</b></td><td><b>6억원</b></td><td>법률혼 배우자에 한함</td></tr>
+          <tr><td><b>직계존비속</b> (부모·조부모 → 자녀·손자녀)</td><td><b>5천만원</b></td><td>성년 수증자 기준</td></tr>
+          <tr><td><b>미성년 직계비속</b></td><td><b>2천만원</b></td><td>19세 미만</td></tr>
+          <tr><td><b>기타 친족</b> (형제자매·4촌 이내)</td><td><b>1천만원</b></td><td>—</td></tr>
+          <tr><td><b>타인</b></td><td><b>0원</b></td><td>공제 없이 전액 과세</td></tr>
+        </tbody>
+      </table>
+      <div class="note" style="margin-top:14px">
+        <b>10년 합산 규정</b> — 동일인(직계존속은 배우자 포함)으로부터 10년 이내에 받은 증여재산은 합산하여 공제 한도를 적용합니다.<br>
+        <b>절세 포인트</b> — 10년마다 공제 한도가 리셋되므로, 자녀에게 5천만원씩 10년 주기로 증여하면 공제를 반복 활용할 수 있습니다.<br>
+        <b>혼인·출산 증여공제 (2024년 신설)</b> — 혼인일 전후 2년 이내 또는 자녀 출생일로부터 2년 이내 직계존속으로부터 받는 증여에 대해 <b>1억원 추가 공제</b> (기존 5천만원 + 추가 1억원 = 최대 1억 5천만원)
+      </div>
+
+      <p class="sec" style="margin-top:20px">혼인·출산 증여공제 (조특법 §71의2)</p>
+      <table class="lawtbl" style="margin-top:8px">
+        <thead><tr><th style="width:30%">구분</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>적용 시기</td><td>2024.1.1. 이후 증여분부터</td></tr>
+          <tr><td>대상</td><td>직계존속(부모·조부모)으로부터 받은 증여</td></tr>
+          <tr><td>혼인 공제</td><td>혼인신고일 전후 <b>각 2년</b> 이내 증여분에 대해 <b>1억원</b> 추가 공제</td></tr>
+          <tr><td>출산 공제</td><td>자녀 출생일(입양 포함)로부터 <b>2년</b> 이내 증여분에 대해 <b>1억원</b> 추가 공제</td></tr>
+          <tr><td>한도</td><td>혼인·출산 공제 합산 <b>1억원</b> 한도 (중복 적용 불가)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 세율 탭 ===== -->
+  <div class="pane" id="p-law">
+    <div class="card">
+      <h2>증여세 세율표 (2024년 현행)</h2>
+      <table class="lawtbl">
+        <thead><tr><th>과세표준</th><th style="text-align:center">세율</th><th style="text-align:right">누진공제</th></tr></thead>
+        <tbody>
+          <tr><td>1억원 이하</td><td style="text-align:center">10%</td><td style="text-align:right">-</td></tr>
+          <tr><td>1억원 초과 ~ 5억원 이하</td><td style="text-align:center">20%</td><td style="text-align:right">1,000만원</td></tr>
+          <tr><td>5억원 초과 ~ 10억원 이하</td><td style="text-align:center">30%</td><td style="text-align:right">6,000만원</td></tr>
+          <tr><td>10억원 초과 ~ 30억원 이하</td><td style="text-align:center">40%</td><td style="text-align:right">1억 6,000만원</td></tr>
+          <tr><td>30억원 초과</td><td style="text-align:center">50%</td><td style="text-align:right">4억 6,000만원</td></tr>
+        </tbody>
+      </table>
+      <div class="note" style="margin-top:14px">
+        <b>신고세액공제 3%</b> — 증여세 신고기한(증여일이 속하는 달의 말일로부터 3개월) 내 신고 시 산출세액의 3% 공제<br>
+        <b>세대생략 할증과세</b> — 수증자가 증여자의 자녀가 아닌 손자녀 등 세대를 건너뛴 경우 산출세액의 <b>30% 할증</b> (미성년자가 20억원 초과 증여받는 경우 40% 할증)<br>
+        <b>신고기한</b> — 증여일이 속하는 달의 말일로부터 <b>3개월</b> 이내
+      </div>
+
+      <h2 style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)">부담부증여 과세 구조</h2>
+      <table class="lawtbl" style="margin-top:10px">
+        <tbody>
+          <tr><td style="width:35%;font-weight:600">수증자 (받는 사람)</td><td>증여가액 − 채무액 부분에 대해 <b>증여세</b> 납부</td></tr>
+          <tr><td style="font-weight:600">증여자 (주는 사람)</td><td>채무 인수액 부분은 <b>유상양도</b>로 보아 <b>양도소득세</b> 과세</td></tr>
+          <tr><td style="font-weight:600">절세 여부</td><td>양도세 < 증여세 절세 효과 발생 / 양도세 > 증여세 오히려 불리</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    본 계산기는 <b>실무 참고용</b>으로, 실제 세액은 재산 평가방법, 10년 합산 기존 증여액, 세대생략 할증 여부 등에 따라 달라질 수 있습니다.
+    신고 전 반드시 <b>담당 세무사의 검토</b>를 받으시기 바랍니다.
+  </div>
+</div>
+
+<script>
+function $(id){ return document.getElementById(id); }
+function fmt(n){
+  if(n===null||n===undefined||isNaN(n)) return '-';
+  var neg=n<0; n=Math.round(Math.abs(n));
+  return (neg?'-':'')+n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
+}
+function unfmt(s){ return Number(String(s).replace(/[^0-9.-]/g,''))||0; }
+
+/* ===== 세율 ===== */
+var BRACKETS=[
+  {limit:100000000,  rate:0.10,ded:0},
+  {limit:500000000,  rate:0.20,ded:10000000},
+  {limit:1000000000, rate:0.30,ded:60000000},
+  {limit:3000000000, rate:0.40,ded:160000000},
+  {limit:Infinity,   rate:0.50,ded:460000000}
+];
+function calcTax(base){
+  if(base<=0) return 0;
+  for(var i=0;i<BRACKETS.length;i++){
+    if(base<=BRACKETS[i].limit) return base*BRACKETS[i].rate-BRACKETS[i].ded;
+  }
+  return base*0.50-460000000;
+}
+function topRate(base){
+  if(base<=0) return 0;
+  for(var i=0;i<BRACKETS.length;i++){
+    if(base<=BRACKETS[i].limit) return BRACKETS[i].rate;
+  }
+  return 0.50;
+}
+
+/* ===== 관계 선택 ===== */
+var currentDeduct = 600000000;
+var currentRel = 'spouse';
+document.querySelectorAll('.rel-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.rel-btn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    currentRel = btn.dataset.rel;
+    var d = parseInt(btn.dataset.deduct);
+    if(d === -1){
+      $('customWrap').style.display='block';
+      currentDeduct = unfmt($('customDeduct').value);
+    } else {
+      $('customWrap').style.display='none';
+      currentDeduct = d;
+    }
+    updateDeductBadge();
+    render();
+  });
+});
+$('customDeduct').addEventListener('input', function(){
+  var v=this.value.replace(/[^0-9]/g,'');
+  this.value=v?Number(v).toLocaleString('ko-KR'):'';
+  currentDeduct = unfmt(this.value);
+  updateDeductBadge();
+  render();
+});
+function updateDeductBadge(){
+  var amt = currentDeduct;
+  var txt = amt >= 100000000 ? (amt/100000000)+'억원' :
+            amt >= 10000000  ? (amt/10000000)+'천만원' :
+            amt > 0          ? fmt(amt)+'원' : '없음';
+  $('deductAmt').textContent = txt;
+}
+
+/* ===== 계산 ===== */
+function calc(){
+  var giftAmt   = unfmt($('giftAmt').value);
+  var priorGift = unfmt($('priorGift').value);
+  var priorDeduct = unfmt($('priorDeduct').value);
+  var debt      = unfmt($('debt').value);
+
+  // 잔여 공제
+  var remainDeduct = Math.max(0, currentDeduct - priorDeduct);
+
+  // 증여재산가액 (부담부: 채무 차감)
+  var netGift = Math.max(0, giftAmt - debt);
+
+  // 합산 과세가액
+  var totalGift = netGift + priorGift;
+
+  // 공제 적용 (합산 기준)
+  var deductUsed = Math.min(remainDeduct, netGift);
+
+  // 과세표준
+  var base = Math.max(0, totalGift - currentDeduct);
+
+  // 기합산분 세액 (누진세율 적용을 위해)
+  var priorBase = Math.max(0, priorGift - Math.min(priorDeduct, priorGift));
+  var priorTax  = calcTax(priorBase);
+  var totalTax  = calcTax(base);
+  var tax       = Math.max(0, totalTax - priorTax);
+
+  var reportDiscount = Math.round(tax * 0.03);
+  var finalTax = Math.max(0, tax - reportDiscount);
+
+  return {
+    giftAmt, priorGift, priorDeduct, debt, netGift,
+    remainDeduct, deductUsed, totalGift, base,
+    tax, reportDiscount, finalTax,
+    rate: topRate(base),
+  };
+}
+
+/* ===== 렌더 ===== */
+function render(){
+  var R = calc();
+  var giftAmt = unfmt($('giftAmt').value);
+
+  // 기본 정보 바
+  $('baseInfo').innerHTML = '과세표준 <em>(합산 후 공제 차감)</em> <b>'+fmt(R.base)+'원</b>';
+
+  // KPI
+  $('kGift').textContent  = fmt(giftAmt)+'원';
+  $('kDeduct').textContent= fmt(R.deductUsed)+'원';
+  $('kBase').textContent  = fmt(R.base)+'원';
+  $('kRate').textContent  = Math.round(R.rate*100)+'%';
+  $('kFinal').textContent = fmt(R.finalTax)+'원';
+
+  // 플래그
+  var fl=[];
+  if(currentRel==='spouse')      fl.push('<span class="flag info">배우자 공제 6억원</span>');
+  if(currentRel==='child')       fl.push('<span class="flag info">직계존비속 공제 5천만원</span>');
+  if(currentRel==='child-minor') fl.push('<span class="flag info">미성년자 공제 2천만원</span>');
+  if(currentRel==='relative6')   fl.push('<span class="flag info">기타친족 공제 1천만원</span>');
+  if(R.debt>0) fl.push('<span class="flag warn">부담부증여 — 채무 '+fmt(R.debt)+'원 차감</span>');
+  if(R.priorGift>0) fl.push('<span class="flag warn">기존 증여 합산 적용</span>');
+  if(R.finalTax===0) fl.push('<span class="flag ok">납부세액 없음 (공제 범위 이내)</span>');
+  if(R.rate>=0.4) fl.push('<span class="flag warn">고세율 구간 ('+Math.round(R.rate*100)+'%)</span>');
+  $('flags').innerHTML=fl.join('');
+
+  // 세부 테이블
+  var h='';
+  function row(label,val,cls){
+    return '<tr class="'+(cls||'')+'"><td>'+label+'</td><td>'+(cls==='minus'?'<span style="color:var(--green)">':'')+fmt(val)+'원'+(cls==='minus'?'</span>':'')+'</td></tr>';
+  }
+  h += row('금회 증여가액', giftAmt);
+  if(R.debt>0) h += '<tr class="sub"><td>− 인수 채무 (부담부증여)</td><td>'+fmt(R.debt)+'원</td></tr>';
+  if(R.debt>0) h += row('순 증여재산가액', R.netGift);
+  if(R.priorGift>0) h += '<tr class="sub"><td>+ 10년 이내 기존 증여액</td><td>'+fmt(R.priorGift)+'원</td></tr>';
+  if(R.priorGift>0) h += row('합산 증여가액', R.totalGift);
+  h += '<tr class="sub"><td>− 증여재산공제 잔여</td><td class="minus">'+fmt(R.deductUsed)+'원</td></tr>';
+  h += '<tr class="total"><td>과세표준</td><td>'+fmt(R.base)+'원</td></tr>';
+  h += '<tr><td>적용세율</td><td>'+Math.round(R.rate*100)+'%</td></tr>';
+  h += '<tr><td>산출세액</td><td>'+fmt(R.tax)+'원</td></tr>';
+  h += '<tr class="sub"><td>− 신고세액공제 (3%)</td><td class="minus">'+fmt(R.reportDiscount)+'원</td></tr>';
+  h += '<tr class="total"><td>최종 납부세액</td><td style="color:var(--navy)">'+fmt(R.finalTax)+'원</td></tr>';
+  $('tbody').innerHTML=h;
+
+  // 주의사항
+  var notes=[];
+  if(R.debt>0) notes.push('부담부증여의 채무 인수액 부분은 <b>증여자에게 양도소득세</b>가 과세될 수 있습니다. 양도세와 증여세를 함께 검토하세요.');
+  if(R.priorGift>0) notes.push('10년 이내 기존 증여액이 합산되어 누진세율이 높아질 수 있습니다.');
+  if(R.rate>=0.5) notes.push('과세표준이 30억원 초과로 <b>최고세율 50%</b>가 적용됩니다. 분할증여·기간분산 전략을 검토하세요.');
+  if(currentRel==='child'||currentRel==='child-minor') notes.push('직계존속(부모·조부모)으로부터 증여받는 경우, <b>혼인·출산 공제(최대 1억원 추가)</b> 적용 여부를 확인하세요.');
+  var nb=$('noteBox');
+  if(notes.length){nb.innerHTML='· '+notes.join('<br>· ');nb.style.display='block';}
+  else nb.style.display='none';
+
+  // 분할증여 시뮬레이션 (세금이 있을 때만)
+  if(R.finalTax>0 && giftAmt>currentDeduct){
+    $('splitSection').style.display='block';
+    var half = Math.floor(giftAmt/2);
+    // 1회 전액
+    var base1 = Math.max(0, giftAmt - currentDeduct);
+    var tax1  = Math.max(0, calcTax(base1)*0.97);
+    // 2회 분할 (각 half, 10년 간격 → 공제 리셋)
+    var base2a = Math.max(0, half - currentDeduct);
+    var tax2a  = Math.max(0, calcTax(base2a)*0.97);
+    var base2b = Math.max(0, (giftAmt-half) - currentDeduct);
+    var tax2b  = Math.max(0, calcTax(base2b)*0.97);
+    var tax2   = tax2a + tax2b;
+    var saved  = tax1 - tax2;
+
+    var sh='';
+    sh += '<tr><td>증여 금액</td><td>'+fmt(giftAmt)+'원 (1회)</td><td>'+fmt(half)+'원 × 2회</td><td>—</td></tr>';
+    sh += '<tr><td>공제 적용</td><td>'+fmt(currentDeduct)+'원</td><td>'+fmt(currentDeduct)+'원 × 2회</td><td>—</td></tr>';
+    sh += '<tr><td>과세표준</td><td>'+fmt(base1)+'원</td><td>'+fmt(base2a+base2b)+'원</td><td>—</td></tr>';
+    sh += '<tr class="total"><td>예상 세액</td><td>'+fmt(Math.round(tax1))+'원</td><td>'+fmt(Math.round(tax2))+'원</td><td style="color:'+(saved>0?'var(--green)':'var(--red)')+'">'+fmt(Math.round(Math.abs(saved)))+'원 '+(saved>0?'절세':'추가')+'</td></tr>';
+    $('splitBody').innerHTML=sh;
+  } else {
+    $('splitSection').style.display='none';
+  }
+}
+
+/* ===== 콤마 입력 ===== */
+document.querySelectorAll('input.num').forEach(function(el){
+  if(el.id==='customDeduct') return;
+  el.addEventListener('input',function(){
+    var v=el.value.replace(/[^0-9]/g,'');
+    el.value=v?Number(v).toLocaleString('ko-KR'):'';
+    render();
+  });
+});
+
+/* ===== 기타 이벤트 ===== */
+['giftAmt','priorGift','priorDeduct','debt'].forEach(function(id){
+  $(id).addEventListener('input',render);
+});
+$('installment').addEventListener('change',render);
+
+/* ===== 탭 ===== */
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+    document.querySelectorAll('.pane').forEach(function(x){x.classList.remove('on');});
+    t.classList.add('on');
+    $('p-'+t.dataset.t).classList.add('on');
+  });
+});
+
+/* ===== 저장/불러오기 ===== */
+$('btnSave').addEventListener('click',function(){
+  var o={rel:currentRel,deduct:currentDeduct,
+    giftAmt:$('giftAmt').value,priorGift:$('priorGift').value,
+    priorDeduct:$('priorDeduct').value,debt:$('debt').value};
+  try{localStorage.setItem('gift2024',JSON.stringify(o));alert('저장했습니다.');}
+  catch(e){alert('저장 실패: '+e.message);}
+});
+$('btnLoad').addEventListener('click',function(){
+  try{
+    var s=localStorage.getItem('gift2024');
+    if(!s){alert('저장된 데이터가 없습니다.');return;}
+    var o=JSON.parse(s);
+    ['giftAmt','priorGift','priorDeduct','debt'].forEach(function(f){
+      if(o[f]!==undefined) $(f).value=o[f];
+    });
+    // 관계 복원
+    document.querySelectorAll('.rel-btn').forEach(function(b){
+      if(b.dataset.rel===o.rel){ b.click(); }
+    });
+    render(); alert('불러왔습니다.');
+  }catch(e){alert('불러오기 실패: '+e.message);}
+});
+$('btnPrint').addEventListener('click',function(){window.print();});
+$('btnCalc').addEventListener('click',render);
+
+render();
+</script>
+</body>
+</html>

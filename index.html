@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>세무사 이정란사무소 — 자산세무 전문</title>
+<meta name="description" content="국세청 경력 22년 세무사 이정란. 양도·상속·증여·법인 자산세무 전문. 서울 노원구 상계동.">
+<style>
+:root{
+  --navy:#0d2a5e;
+  --navy2:#1a3f80;
+  --navy-lt:#e6f1fb;
+  --accent:#185fa5;
+  --accent-lt:#e6f1fb;
+  --gold:#c9a84c;
+  --ink:#12203a;
+  --ink2:#3d4d68;
+  --muted:#7a8699;
+  --line:#dde3ec;
+  --bg:#f5f7fa;
+  --card:#ffffff;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:15px;line-height:1.6;color:var(--ink);background:var(--bg)}
+a{text-decoration:none;color:inherit}
+
+/* ===== 네비게이션 ===== */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:60px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.18);
+}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo-mark{
+  width:42px;height:42px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#c9a84c 0%,#e8c97a 50%,#c9a84c 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:900;color:#0d2a5e;
+  letter-spacing:-1px;font-family:Georgia,"Times New Roman",serif;
+  box-shadow:0 2px 10px rgba(201,168,76,0.5);
+  border:1px solid rgba(255,255,255,0.15);
+}
+.nav-logo-text{color:#fff;font-size:15px;font-weight:600;letter-spacing:-0.3px}
+.nav-logo-sub{color:#a8c4f0;font-size:11px;font-weight:400;display:block;margin-top:1px}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-links a{
+  color:#c8daf5;font-size:13px;padding:6px 12px;border-radius:6px;
+  transition:background 0.15s;
+}
+.nav-links a:hover{background:rgba(255,255,255,0.1);color:#fff}
+.nav-cta{
+  background:#fff;color:var(--navy)!important;
+  font-weight:600;padding:7px 16px!important;
+  border-radius:6px!important;
+  transition:opacity 0.15s!important;
+}
+.nav-cta:hover{opacity:0.9;background:#fff!important}
+.nav-mobile-btn{display:none;background:none;border:none;cursor:pointer;padding:6px}
+.nav-mobile-btn span{display:block;width:22px;height:2px;background:#fff;margin:4px 0;border-radius:2px}
+
+/* ===== 히어로 ===== */
+.hero{
+  background:url('tax-office-hero-blue.png') center center / cover no-repeat;
+  padding:72px 32px 64px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(10,25,60,0.35);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(255,255,255,0.6);
+  border-radius:30px;padding:5px 16px;
+  font-size:12px;color:#ffffff;letter-spacing:0.3px;
+  margin-bottom:22px;font-weight:600;
+}
+.hero-eyebrow::before{content:'●';font-size:7px;color:var(--gold)}
+.hero h1{
+  color:#ffffff;font-size:42px;font-weight:800;
+  line-height:1.3;letter-spacing:-0.5px;margin-bottom:16px;
+  text-shadow:0 2px 12px rgba(0,0,0,1), 0 0 40px rgba(0,0,0,0.9), 0 4px 6px rgba(0,0,0,0.8);
+}
+.hero h1 em{color:#bdd8ff;font-style:normal;text-shadow:0 2px 12px rgba(0,0,0,1), 0 0 40px rgba(0,0,0,0.9);}
+.hero-desc{
+  color:#ffffff;font-size:16px;line-height:1.75;font-weight:600;
+  margin:0 auto 32px;max-width:520px;
+  text-shadow:0 2px 10px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.9);
+}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:13px 26px;border-radius:8px;font-size:14px;font-weight:600;
+  cursor:pointer;border:none;transition:all 0.15s;
+}
+.btn-white{background:#ffffff;color:var(--navy);box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+.btn-white:hover{background:#f0f4ff}
+.btn-outline{background:rgba(0,0,0,0.3);color:#fff;border:1.5px solid rgba(255,255,255,0.8);box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+.btn-outline:hover{background:rgba(255,255,255,0.08)}
+
+
+/* ===== 섹션 공통 ===== */
+section{padding:60px 32px}
+.section-inner{max-width:960px;margin:0 auto}
+.section-eyebrow{font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px}
+.section-title{font-size:28px;font-weight:800;color:var(--navy);letter-spacing:-0.6px;margin-bottom:8px}
+.section-desc{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:36px}
+
+/* ===== 계산기 섹션 ===== */
+.calc-section{background:#fff;border-bottom:1px solid var(--line)}
+.calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.calc-card{
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 16px;cursor:pointer;transition:all 0.15s;
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+}
+.calc-card:hover{border-color:var(--accent);background:var(--accent-lt);transform:translateY(-1px);box-shadow:0 4px 12px rgba(24,95,165,0.1)}
+.calc-icon{
+  width:40px;height:40px;border-radius:8px;
+  background:var(--navy-lt);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.calc-card h3{font-size:16px;font-weight:800;color:var(--navy);line-height:1.4;letter-spacing:-0.3px}
+.calc-card p{font-size:12px;color:var(--muted);line-height:1.5}
+.calc-badge{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;
+  background:#e9f6f4;color:#0f766e;
+}
+.calc-badge.soon{background:#fdf4e6;color:#b45309}
+.calc-more{
+  margin-top:12px;padding:12px 16px;
+  background:var(--bg);border:1px dashed var(--line);border-radius:8px;
+  font-size:13px;color:var(--muted);text-align:center;
+}
+
+/* ===== 세무사 소개 ===== */
+.profile-section{background:var(--bg)}
+.profile-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:36px;display:grid;grid-template-columns:160px 1fr 1fr;gap:28px;align-items:stretch;height:100%;
+}
+.profile-avatar{
+  width:130px;height:150px;border-radius:12px;
+  overflow:hidden;
+  border:3px solid var(--navy-lt);
+  box-shadow:0 4px 16px rgba(13,42,94,0.15);
+}
+.profile-avatar img{
+  width:100%;height:100%;object-fit:cover;object-position:top;
+}
+.profile-name{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.profile-title{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:14px}
+.profile-items{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.profile-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink2);line-height:1.5}
+.profile-item::before{content:'▸';color:var(--accent);flex-shrink:0;margin-top:1px}
+.profile-tags{display:flex;gap:6px;flex-wrap:wrap}
+.profile-tag{
+  background:var(--navy-lt);color:var(--accent);
+  font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;
+}
+
+/* ===== 서비스 섹션 ===== */
+.services-section{background:#fff;border-top:1px solid var(--line)}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.svc-card{
+  background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;cursor:pointer;transition:all 0.15s;
+}
+.svc-card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(24,95,165,0.08)}
+.svc-icon{font-size:22px;margin-bottom:10px}
+.svc-card h3{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:6px;letter-spacing:-0.3px}
+.svc-card p{font-size:12px;color:var(--muted);line-height:1.55}
+.svc-note{
+  margin-top:14px;padding:11px 16px;
+  background:#fdf4e6;border:1px solid #f0dcc0;border-radius:8px;
+  font-size:12.5px;color:#7c4a10;display:flex;align-items:center;gap:8px;
+}
+
+/* ===== CTA 섹션 ===== */
+.cta-section{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  text-align:center;padding:60px 32px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.cta-section h2{font-size:28px;font-weight:700;color:#fff;margin-bottom:12px;letter-spacing:-0.5px}
+.cta-section p{font-size:15px;color:#c8daf5;margin-bottom:32px;line-height:1.7}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-kakao{background:#FEE500;color:#3A1D1D;font-weight:700}
+.btn-kakao:hover{background:#f5db00}
+
+/* ===== 푸터 ===== */
+footer{
+  background:url('footer-tax-office-green-bright.png') center center / cover no-repeat;
+  position:relative;
+  padding:60px 120px;
+  min-height:280px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:24px;
+}
+footer::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(10,25,60,0.25);
+  pointer-events:none;
+}
+.footer-logo{color:#fff;font-size:15px;font-weight:700;margin-bottom:8px;position:relative;z-index:1;text-shadow:0 1px 4px rgba(0,0,0,0.8)}
+.footer-info{font-size:12px;color:#fff;line-height:1.9;position:relative;z-index:1;text-shadow:0 1px 4px rgba(0,0,0,0.8)}
+.footer-links{display:flex;flex-direction:column;gap:6px;text-align:right;position:relative;z-index:1}
+.footer-links a{font-size:12px;color:#fff;transition:color 0.15s;text-shadow:0 1px 4px rgba(0,0,0,0.8)}
+.footer-links a:hover{color:#a8c4f0}
+.footer-copy{
+  width:100%;border-top:1px solid rgba(255,255,255,0.08);
+  padding-top:18px;font-size:11px;color:#4a6080;text-align:center;
+  position:relative;z-index:1;
+}
+
+/* ===== 반응형 ===== */
+@media(max-width:768px){
+  nav{padding:0 16px}
+  .nav-links{display:none}
+  .nav-mobile-btn{display:block}
+  .hero{padding:52px 20px 48px}
+  .hero h1{font-size:26px}
+  .hero-stats{gap:24px}
+  section{padding:44px 20px}
+  .calc-grid{grid-template-columns:1fr 1fr}
+  .svc-grid{grid-template-columns:1fr 1fr}
+  .profile-card{grid-template-columns:1fr!important;padding:24px}
+  .profile-avatar{width:100px;height:120px;}
+  footer{flex-direction:column}
+  .footer-links{text-align:left}
+}
+@media(max-width:480px){
+  .calc-grid{grid-template-columns:1fr}
+  .svc-grid{grid-template-columns:1fr}
+  .hero-btns{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 네비게이션 ===== -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark">JR</div>
+    <div>
+      <div class="nav-logo-text">세무사 이정란사무소</div>
+      <span class="nav-logo-sub">자산세무 전문</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#about">세무사 소개</a>
+    <a href="#services">서비스</a>
+    <a href="https://blog.naver.com/jrleetaxdr" target="_blank">블로그</a>
+    <a href="#calculator">세금 계산기</a>
+    <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="nav-cta">상담 신청</a>
+  </div>
+  <button class="nav-mobile-btn" onclick="toggleMenu()" aria-label="메뉴">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ===== 히어로 ===== -->
+<section class="hero">
+  <div class="hero-eyebrow">국세청 경력 22년 · 제41회 세무사 · 자산세무 전문</div>
+  <h1>양도 · 상속 · 증여 · 법인<br><em>자산세무 전문</em></h1>
+  <p class="hero-desc">복잡한 자산 세금 문제, 국세청 현장 22년 경험을 바탕으로<br>명쾌하게 분석하고 최적의 해결책을 찾아드립니다.</p>
+  <div class="hero-btns">
+    <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="btn btn-white">💬 카카오 무료 상담</a>
+    <a href="#calculator" class="btn btn-outline">📊 세금 계산기 바로가기</a>
+    <a href="https://blog.naver.com/jrleetaxdr" target="_blank" class="btn btn-outline">📝 블로그 바로가기</a>
+  </div>
+
+</section>
+
+<!-- ===== 세무사 소개 ===== -->
+<section class="profile-section" id="about">
+  <div class="section-inner">
+    <div class="section-eyebrow">세무사 소개</div>
+    <div class="section-title" style="display:flex;align-items:center;gap:14px">
+      <div style="width:42px;height:42px;border-radius:10px;flex-shrink:0;
+        background:linear-gradient(135deg,#c9a84c 0%,#e8c97a 50%,#c9a84c 100%);
+        display:flex;align-items:center;justify-content:center;
+        font-size:16px;font-weight:900;color:#0d2a5e;
+        letter-spacing:-1px;font-family:Georgia,'Times New Roman',serif;
+        box-shadow:0 2px 10px rgba(201,168,76,0.5);
+        border:1px solid rgba(255,255,255,0.15)">JR</div>
+      세무사 이정란사무소
+    </div>
+    <div class="profile-card">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="profile-avatar"><img src="profile.jpg" alt="세무사 이정란"></div>
+        <!-- 연락처 -->
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:7px">
+            📍 <span>서울특별시 노원구 상계동</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:7px">
+            📞 <span>02-935-0280</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:7px">
+            📠 <span>FAX 02-935-0280</span>
+          </div>
+          <div style="font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:7px">
+            ✉️ <a href="mailto:jrleetax@gmail.com" style="color:var(--accent)">jrleetax@gmail.com</a>
+          </div>
+          <div style="font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:7px">
+            💬 <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" style="color:var(--accent)">카카오채널 상담</a>
+          </div>
+          <div style="font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:7px">
+            📝 <a href="http://blog.naver.com/jrleetaxdr" target="_blank" style="color:var(--accent)">blog.naver.com/jrleetaxdr</a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="profile-name">이정란 세무사</div>
+        <div class="profile-title">자산세무 전문 · 세무사 이정란사무소 대표</div>
+        <div class="profile-items">
+          <div class="profile-item">국세청 경력 22년 — 현장에서 쌓은 실전 세무 경험</div>
+          <div class="profile-item">2004년 제41회 세무사 시험 합격</div>
+          <div class="profile-item">경희대학교 경영대학원 세무관리학과 졸업</div>
+          <div class="profile-item">의정부세무서 국세심사위원 역임 (전)</div>
+          <div class="profile-item">양도 · 상속 · 증여 · 법인 자산세무 집중 전문</div>
+        </div>
+        <div class="profile-tags">
+          <span class="profile-tag">양도소득세</span>
+          <span class="profile-tag">상속세</span>
+          <span class="profile-tag">증여세</span>
+          <span class="profile-tag">가업승계</span>
+          <span class="profile-tag">법인컨설팅</span>
+          <span class="profile-tag">비상장주식</span>
+          <span class="profile-tag">법인잉여금</span>
+          <span class="profile-tag">개인사업자 법인전환</span>
+          <span class="profile-tag">가족법인</span>
+          <span class="profile-tag">상속재원마련</span>
+          <span class="profile-tag">명의신탁 실명전환</span>
+          <span class="profile-tag">부동산세무</span>
+          <span class="profile-tag">절세전략</span>
+        </div>
+
+      </div>
+
+      <!-- 법인전환 절세 다이어그램 -->
+      <div style="border-left:1px solid var(--line);padding-left:24px;display:flex;align-items:center;justify-content:center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 680 620" style="max-width:300px;display:block;margin:0 auto" viewBox="0 0 680 620" role="img" aria-labelledby="title desc">
+  <title id="title">법인전환의 절세 효과 및 이점</title>
+  <desc id="desc">절세효과와 가업승계를 중심으로 다섯 가지 법인전환 효과가 원형 화살표를 따라 순환하는 홈페이지 프로필용 인포그래픽</desc>
+  <defs>
+    <style>
+      #cycleArrows {
+        transform-origin: 340px 345px;
+        animation: cycleSpin 16s linear infinite;
+      }
+      #movingHighlight {
+        stroke-dasharray: 24 38;
+        animation: highlightFlow 3.6s linear infinite;
+      }
+      @keyframes cycleSpin { to { transform: rotate(360deg); } }
+      @keyframes highlightFlow { to { stroke-dashoffset: -124; } }
+      @media (prefers-reduced-motion: reduce) {
+        #cycleArrows, #movingHighlight { animation: none; }
+      }
+    </style>
+    <linearGradient id="ringGradient" x1="220" y1="225" x2="460" y2="465" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#73C6FF"/>
+      <stop offset="0.45" stop-color="#397EF0"/>
+      <stop offset="1" stop-color="#1D4DB2"/>
+    </linearGradient>
+    <linearGradient id="nodeGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4B72C5"/>
+      <stop offset="1" stop-color="#17265E"/>
+    </linearGradient>
+    <radialGradient id="centerGradient" cx="40%" cy="32%" r="75%">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EAF3FF"/>
+    </radialGradient>
+    <filter id="nodeShadow" x="-35%" y="-35%" width="170%" height="170%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#0D1D4B" flood-opacity="0.27"/>
+    </filter>
+    <filter id="ringGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="cleanArrowHead" markerWidth="15" markerHeight="15" viewBox="0 0 14 14"
+            refX="12.5" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1.5 1.8 L12.5 7 L1.5 12.2 L4.2 7 Z"
+            fill="#56A6FF" stroke="#D8EEFF" stroke-width="0.75" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="44" text-anchor="middle" fill="#2859A1"
+        font-family="Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif"
+        font-size="29" font-weight="800" letter-spacing="-0.8">법인전환의 절세 효과 및 이점</text>
+  <rect x="170" y="60" width="340" height="4" rx="2" fill="url(#ringGradient)" opacity="0.8"/>
+
+  <g id="cycleArrows" filter="url(#ringGlow)">
+    <circle cx="340" cy="345" r="120" fill="none" stroke="#173E96" stroke-width="10" opacity="0.98"/>
+    <circle cx="340" cy="345" r="120" fill="none" stroke="url(#ringGradient)" stroke-width="7.5" opacity="0.98"/>
+    <g fill="none" stroke="url(#ringGradient)" stroke-width="9" stroke-linecap="round"
+       marker-end="url(#cleanArrowHead)">
+      <path d="M340 225 A120 120 0 0 1 451.3 300.1"/>
+      <path d="M454.1 307.9 A120 120 0 0 1 417.1 436.9"/>
+      <path d="M410.5 442.1 A120 120 0 0 1 276.4 446.8"/>
+      <path d="M269.5 442.1 A120 120 0 0 1 223.6 316.0"/>
+      <path d="M225.9 307.9 A120 120 0 0 1 331.6 225.3"/>
+    </g>
+    <circle id="movingHighlight" cx="340" cy="345" r="120" fill="none"
+            stroke="#D8EEFF" stroke-width="2.6" stroke-linecap="round" opacity="0.82"/>
+  </g>
+
+  <!-- 원형 화살표 중심 메시지 -->
+  <circle cx="340" cy="345" r="78" fill="url(#centerGradient)" stroke="#8FC3FF" stroke-width="2.5" filter="url(#nodeShadow)"/>
+  <circle cx="340" cy="345" r="69" fill="none" stroke="#C5E0FF" stroke-width="1.5"/>
+  <text x="340" y="336" text-anchor="middle" fill="#1F4E99"
+        font-family="Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif"
+        font-size="25" font-weight="850" letter-spacing="-0.7">
+    <tspan x="340">절세효과</tspan><tspan x="340" dy="33">가업승계</tspan>
+  </text>
+
+  <g filter="url(#nodeShadow)">
+    <circle cx="340" cy="140" r="72" fill="url(#nodeGradient)"/>
+    <circle cx="535" cy="282" r="72" fill="url(#nodeGradient)"/>
+    <circle cx="460" cy="511" r="75" fill="url(#nodeGradient)"/>
+    <circle cx="220" cy="511" r="72" fill="url(#nodeGradient)"/>
+    <circle cx="145" cy="282" r="72" fill="url(#nodeGradient)"/>
+  </g>
+  <g fill="none" stroke="#83BDFF" stroke-width="2" opacity="0.82">
+    <circle cx="340" cy="140" r="65"/>
+    <circle cx="535" cy="282" r="65"/>
+    <circle cx="460" cy="511" r="68"/>
+    <circle cx="220" cy="511" r="65"/>
+    <circle cx="145" cy="282" r="65"/>
+  </g>
+
+  <g fill="#FFFFFF" text-anchor="middle"
+     font-family="Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif"
+     font-size="21" font-weight="750" letter-spacing="-0.5">
+    <text x="340" y="134"><tspan x="340">소득의</tspan><tspan x="340" dy="29">유형변경</tspan></text>
+    <text x="535" y="276"><tspan x="535">소득의</tspan><tspan x="535" dy="29">귀속변경</tspan></text>
+    <text x="460" y="483" font-size="19"><tspan x="460">가족법인 활용</tspan><tspan x="460" dy="26">절세 및</tspan><tspan x="460" dy="26">가업승계</tspan></text>
+    <text x="220" y="481" font-size="19"><tspan x="220">소득의</tspan><tspan x="220" dy="26">귀속시기</tspan><tspan x="220" dy="26">변경</tspan></text>
+    <text x="145" y="252" font-size="19"><tspan x="145">영업권 활용</tspan><tspan x="145" dy="26">법인세</tspan><tspan x="145" dy="26">절세</tspan></text>
+  </g>
+</svg>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== 서비스 ===== -->
+<section class="services-section" id="services">
+  <div class="section-inner">
+    <div class="section-eyebrow">서비스</div>
+    <div class="section-title">전문 세무 서비스</div>
+    <div class="section-desc">자산을 지키고 절세를 실현하는 전문 세무 서비스를 제공합니다.</div>
+    <div class="svc-grid">
+      <div class="svc-card">
+        <div class="svc-icon">🏠</div>
+        <h3>양도소득세 컨설팅</h3>
+        <p>부동산·주식 양도 전 절세 전략 수립, 비과세·감면 요건 검토, 개정세법 반영 세액 분석</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">📋</div>
+        <h3>상속세 컨설팅</h3>
+        <p>상속재산 평가, 공제 요건 검토, 신고 대리, 상속재원 사전 설계</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">🎁</div>
+        <h3>증여세 컨설팅</h3>
+        <p>관계별 증여공제 활용, 분산 증여 전략, 부담부증여 분석, 신고 대리</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">🔄</div>
+        <h3>개인사업자 법인전환</h3>
+        <p>세부담 비교 분석, 전환 시점 최적화, 현물출자·사업양수도 방식 검토</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">👨‍👩‍👧</div>
+        <h3>가족법인 설립·운영</h3>
+        <p>가족법인 설립 타당성 분석, 소득 분산 전략, 법인 운영 세무 자문</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">🏆</div>
+        <h3>가업승계 전략</h3>
+        <p>가업상속공제·가업승계 증여특례 요건 검토, 사전·사후 관리 플랜 수립</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">📊</div>
+        <h3>법인 잉여금 플랜</h3>
+        <p>누적 잉여금 처리 전략, 임원퇴직금·배당·자본금 전환 등 최적 방안 설계</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">📈</div>
+        <h3>비상장주식 평가</h3>
+        <p>순손익가치·순자산가치 평가, 주식 이동 전 세금 시뮬레이션, 명의신탁 실명전환</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-icon">🛡️</div>
+        <h3>상속재원마련 플랜</h3>
+        <p>상속세 납부 재원 사전 설계, 생명보험 활용, 부동산·금융자산 포트폴리오 조정</p>
+      </div>
+    </div>
+    <div class="svc-note">
+      📌 <strong>세무기장업무</strong>는 협력 세무사에게 안내해 드립니다.
+    </div>
+  </div>
+</section>
+
+<!-- ===== 블로그 ===== -->
+<section style="background:var(--bg);border-top:1px solid var(--line);padding:60px 32px">
+  <div class="section-inner">
+    <div class="section-eyebrow">블로그</div>
+    <div class="section-title">최근 게시글</div>
+    <div class="section-desc">세무 실무에 바로 쓸 수 있는 정보를 공유합니다.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <a href="https://blog.naver.com/jrleetaxdr/224385017626" target="_blank"
+         style="background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:block;transition:all 0.15s;text-decoration:none"
+         onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='0 4px 16px rgba(24,95,165,0.08)'"
+         onmouseout="this.style.borderColor='var(--line)';this.style.boxShadow='none'">
+        <div style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:10px">세법 해석</div>
+        <h3 style="font-size:15px;font-weight:600;color:var(--ink);line-height:1.5;margin-bottom:12px">4대 세법의 '시가(時價)'는 같은 개념이 아니다</h3>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px">양도세·상속세·증여세·법인세에서 각각 다르게 적용되는 시가의 개념과 실무상 주의사항을 정리했습니다.</p>
+        <span style="font-size:12px;color:var(--accent);font-weight:600">자세히 보기 →</span>
+      </a>
+      <a href="https://blog.naver.com/jrleetaxdr/224370346608" target="_blank"
+         style="background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:block;transition:all 0.15s;text-decoration:none"
+         onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='0 4px 16px rgba(24,95,165,0.08)'"
+         onmouseout="this.style.borderColor='var(--line)';this.style.boxShadow='none'">
+        <div style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:10px">개정세법</div>
+        <h3 style="font-size:15px;font-weight:600;color:var(--ink);line-height:1.5;margin-bottom:12px">2026 양도소득세 개정 세법 총정리: 장기거주 소득공제 개편</h3>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px">2026년 세제개편안의 양도소득세 핵심 변경사항, 장기거주 소득공제 개편 내용을 한눈에 정리했습니다.</p>
+        <span style="font-size:12px;color:var(--accent);font-weight:600">자세히 보기 →</span>
+      </a>
+    </div>
+    <div style="text-align:center;margin-top:20px">
+      <a href="https://blog.naver.com/jrleetaxdr" target="_blank"
+         style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);font-weight:600;padding:10px 20px;border:1px solid var(--accent);border-radius:8px;transition:all 0.15s"
+         onmouseover="this.style.background='var(--accent-lt)'"
+         onmouseout="this.style.background='transparent'">
+        블로그 전체글 보기 →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 세금 계산기 ===== -->
+<section class="calc-section" id="calculator">
+  <div class="section-inner">
+    <div class="section-eyebrow">세금 계산기</div>
+    <div class="section-title">직접 계산해보세요</div>
+    <div class="section-desc">복잡한 세금, 클릭 몇 번으로 미리 확인하세요. 모두 무료로 제공합니다.<br>
+      <span style="font-size:12px;color:var(--muted)">※ 본 계산기는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.</span>
+    </div>
+    <!-- 기본 노출 3개 -->
+    <div class="calc-grid">
+      <a href="양도소득세_개정비교계산기.html" class="calc-card">
+        <div class="calc-icon">🏠</div>
+        <div>
+          <h3>양도소득세 개정 전·후 비교</h3>
+          <p>2026.8.3 세제개편안 반영 · 다주택 중과 · 조정대상지역 조회</p>
+        </div>
+        <span class="calc-badge">✓ 사용 가능</span>
+      </a>
+      <a href="상속세계산기.html" class="calc-card">
+        <div class="calc-icon">📋</div>
+        <div>
+          <h3>상속세 계산기</h3>
+          <p>2026년 현재 기준 · 상속재산 공제 · 세율 자동 계산 · 납부세액 산출</p>
+        </div>
+        <span class="calc-badge">✓ 사용 가능</span>
+      </a>
+      <a href="증여세계산기.html" class="calc-card">
+        <div class="calc-icon">🎁</div>
+        <div>
+          <h3>증여세 계산기</h3>
+          <p>2026년 현재 기준 · 관계별 공제한도 · 세율 적용 · 누진공제 자동 반영</p>
+        </div>
+        <span class="calc-badge">✓ 사용 가능</span>
+      </a>
+    </div>
+
+    <!-- 더보기 클릭 시 나타나는 추가 3개 -->
+    <div id="calcMore" style="display:none;margin-top:12px">
+      <div class="calc-grid">
+        <a href="취득세계산기.html" class="calc-card">
+          <div class="calc-icon">🔑</div>
+          <div>
+            <h3>취득세 계산기</h3>
+            <p>2026년 현재 기준 · 주택·비주택 · 조정대상지역 · 다주택 중과 반영</p>
+          </div>
+          <span class="calc-badge">✓ 사용 가능</span>
+        </a>
+        <a href="임원퇴직금계산기.html" class="calc-card">
+          <div class="calc-icon">💼</div>
+          <div>
+            <h3>임원퇴직금 및 세액계산</h3>
+            <p>2026년 현재 기준 · 정관 규정 반영 · 손금산입 한도 · 퇴직소득세 계산</p>
+          </div>
+          <span class="calc-badge">✓ 사용 가능</span>
+        </a>
+        <div class="calc-card" style="opacity:0.75;cursor:default">
+          <div class="calc-icon">🏢</div>
+          <div>
+            <h3>법인전환 절세효과</h3>
+            <p>2026년 현재 기준 · 개인사업자 vs 법인 세부담 비교 · 전환시점 분석</p>
+          </div>
+          <span class="calc-badge soon">준비 중</span>
+        </div>
+      </div>
+      <div class="calc-more">📌 가업상속공제 · 비상장주식 가치평가 · 종합소득세 계산기 등 계속 추가 예정입니다.</div>
+    </div>
+
+    <!-- 더보기 버튼 -->
+    <div style="text-align:center;margin-top:16px">
+      <button id="calcMoreBtn" onclick="toggleCalc()"
+        style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;
+        border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;
+        cursor:pointer;transition:opacity 0.15s"
+        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        📊 계산기 더보기 (총 5개 +계속 추가) ▼
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="section-inner">
+    <h2>세금 고민, 혼자 안고 계시지 마세요</h2>
+    <p>국세청 22년 경험을 바탕으로 고객 한 분 한 분의 상황을 꼼꼼히 분석합니다.<br>초기 상담은 무료이며, 카카오채널로 편하게 문의하세요.</p>
+    <div class="cta-btns">
+      <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="btn btn-kakao">💬 카카오채널 상담 신청</a>
+      <a href="tel:02-935-0280" class="btn btn-outline">📞 02-935-0280</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 푸터 ===== -->
+<footer>
+  <div>
+    <div class="footer-logo">세무사 이정란사무소</div>
+    <div class="footer-info">
+      📍 서울특별시 노원구 상계동<br>
+      📞 02-935-0280 &nbsp;|&nbsp; 📠 FAX 02-935-0280<br>
+      ✉️ jrleetax@gmail.com<br>
+      💬 카카오채널: pf.kakao.com/_jfhxcj<br>
+      📝 네이버 블로그: <a href="http://blog.naver.com/jrleetaxdr" target="_blank" style="color:#a8c4f0">blog.naver.com/jrleetaxdr</a>
+    </div>
+  </div>
+  <div class="footer-links">
+    <a href="#calculator">세금 계산기</a>
+    <a href="#about">세무사 소개</a>
+    <a href="#services">서비스 안내</a>
+    <a href="https://blog.naver.com/jrleetaxdr" target="_blank">네이버 블로그 →</a>
+    <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank">카카오 상담 →</a>
+  </div>
+
+</footer>
+
+<script>
+function toggleMenu(){
+  var links = document.querySelector('.nav-links');
+  if(links.style.display === 'flex'){
+    links.style.display = 'none';
+  } else {
+    links.style.display = 'flex';
+    links.style.flexDirection = 'column';
+    links.style.position = 'absolute';
+    links.style.top = '60px';
+    links.style.left = '0';
+    links.style.right = '0';
+    links.style.background = '#0d2a5e';
+    links.style.padding = '12px 16px';
+    links.style.zIndex = '99';
+    links.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+  }
+}
+
+function toggleCalc(){
+  var more = document.getElementById('calcMore');
+  var btn = document.getElementById('calcMoreBtn');
+  if(more.style.display==='none'){
+    more.style.display='block';
+    btn.innerHTML='📊 계산기 접기 ▲';
+  } else {
+    more.style.display='none';
+    btn.innerHTML='📊 계산기 더보기 (총 5개 +계속 추가) ▼';
+  }
+}
+
+// 부드러운 스크롤
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click', function(e){
+    var t = document.querySelector(this.getAttribute('href'));
+    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+});
+</script>
+</body>
+</html>
