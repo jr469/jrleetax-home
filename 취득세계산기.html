@@ -123,13 +123,19 @@ tr.sub td{color:var(--ink2);font-size:12px}
   .tabs,.btns,button,.back{display:none!important}
   .pane{display:block!important}
 }
+
+  .print-footer{display:none;}
+  @media print{
+    .print-footer{display:block !important;}
+    .no-print{display:none !important;}
+  }
 </style>
 </head>
 <body>
 <header>
   <a href="index.html" class="back">← 세무사 이정란사무소 홈으로</a>
   <h1>취득세 계산기</h1>
-  <p>2024년 현행 기준 · 주택·비주택·토지·상속·증여 취득 · 다주택 중과 반영 · 세무사 이정란사무소 제공</p>
+  <p>2026년 현행 기준 · 주택·비주택·토지·상속·증여 취득 · 다주택 중과 반영 · 세무사 이정란사무소 제공</p>
 </header>
 
 <div class="wrap">
@@ -211,8 +217,8 @@ tr.sub td{color:var(--ink2);font-size:12px}
 
         <button class="primary" id="btnCalc">취득세 계산하기</button>
         <div class="btns">
-          <button id="btnSave">저장</button>
-          <button id="btnLoad">불러오기</button>
+          <button id="btnSave" style="display:none">저장</button>
+          <button id="btnLoad" style="display:none">불러오기</button>
           <button id="btnPrint">인쇄/PDF</button>
         </div>
       </div>
@@ -236,9 +242,17 @@ tr.sub td{color:var(--ink2);font-size:12px}
           <tbody id="tbody"></tbody>
         </table>
         <div class="note" id="noteBox" style="display:none"></div>
-        <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="kakao-btn">
-          💬 세무사에게 정확한 상담 받기
-        </a>
+        <div style="margin-top:20px;text-align:center;padding-top:16px;border-top:1px solid #eee;">
+          <p style="font-size:13px;color:#888;margin-bottom:12px;">
+            ※ 본 계산기는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.
+          </p>
+          <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank"
+             style="display:inline-block;background:#FEE500;color:#3A1D1D;font-weight:700;
+                    font-size:16px;padding:14px 48px;border-radius:12px;text-decoration:none;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            💬 세무사에게 정확한 상담 받기
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -247,7 +261,7 @@ tr.sub td{color:var(--ink2);font-size:12px}
   <!-- ===== 세율표 탭 ===== -->
   <div class="pane" id="p-rate">
     <div class="card">
-      <h2>주택 취득세율표 (2024년 현행)</h2>
+      <h2>주택 취득세율표 (2026년 현행)</h2>
       <p class="sec">① 1주택 (비조정·조정 동일)</p>
       <table class="lawtbl">
         <thead><tr><th>취득가액</th><th>취득세율</th><th>지방교육세</th><th>농특세</th><th>합계</th></tr></thead>
@@ -583,5 +597,11 @@ document.querySelectorAll('.tab').forEach(function(t){
 updateUI();
 render();
 </script>
+
+<div class="print-footer" style="text-align:center;margin-top:32px;
+  padding-top:16px;border-top:2px solid #0d2a5e;font-size:13px;color:#555;line-height:2;">
+  세무사 이정란사무소 제공 · 서울 노원구 상계동 · Tel: 02-935-0280 · www.jrleetax.co.kr<br>
+  <span style="font-size:11px;color:#888;">※ 본 계산 결과는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.</span>
+</div>
 </body>
 </html>

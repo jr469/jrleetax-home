@@ -129,6 +129,7 @@ h4.sec{margin:18px 0 8px;font-size:13.5px;color:var(--ink);border-left:3px solid
   body{background:#fff}
   .card{break-inside:avoid}
   .pane{display:block !important}
+  .print-footer{display:block !important}
 }
 </style>
 </head>
@@ -239,16 +240,16 @@ h4.sec{margin:18px 0 8px;font-size:13.5px;color:var(--ink);border-left:3px solid
 
         <button class="primary" id="btnCalc" style="margin-top:16px">세액 계산</button>
         <div class="btns">
-          <button id="btnSave">브라우저 저장</button>
-          <button id="btnLoad">불러오기</button>
+          <button id="btnSave" style="display:none">브라우저 저장</button>
+          <button id="btnLoad" style="display:none">불러오기</button>
           <button id="btnPrint">인쇄 / PDF</button>
         </div>
         <div class="btns">
-          <button id="btnExport">JSON 내보내기</button>
-          <button id="btnImport">JSON 불러오기</button>
+          <button id="btnExport" style="display:none">JSON 내보내기</button>
+          <button id="btnImport" style="display:none">JSON 불러오기</button>
           <input type="file" id="fileImport" accept=".json,application/json" style="display:none">
         </div>
-        <div class="hint">브라우저 저장은 이 PC의 이 브라우저에서만 유지됩니다. 다른 PC로 옮기거나 사례별로 보관하려면 <b>JSON 내보내기</b>를 사용하세요.</div>
+        <div class="hint" style="display:none">브라우저 저장은 이 PC의 이 브라우저에서만 유지됩니다. 다른 PC로 옮기거나 사례별로 보관하려면 <b>JSON 내보내기</b>를 사용하세요.</div>
       </div>
     </div>
 
@@ -271,6 +272,18 @@ h4.sec{margin:18px 0 8px;font-size:13.5px;color:var(--ink);border-left:3px solid
           <tbody id="tbody"></tbody>
         </table>
         <div class="note" id="noteBox" style="display:none"></div>
+
+        <div style="margin-top:20px;text-align:center;padding-top:16px;border-top:1px solid #eee;">
+          <p style="font-size:13px;color:#888;margin-bottom:12px;">
+            ※ 본 계산기는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.
+          </p>
+          <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank"
+             style="display:inline-block;background:#FEE500;color:#3A1D1D;font-weight:700;
+                    font-size:16px;padding:14px 48px;border-radius:12px;text-decoration:none;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            💬 세무사에게 정확한 상담 받기
+          </a>
+        </div>
       </div>
 
       <div class="card">
@@ -1050,5 +1063,13 @@ CHECKS.forEach(function(id){ document.getElementById(id).addEventListener('chang
 
 render();
 </script>
+
+
+
+<div class="print-footer" style="text-align:center;margin-top:32px;
+  padding-top:16px;border-top:2px solid #0d2a5e;font-size:13px;color:#555;line-height:2;">
+  세무사 이정란사무소 제공 · 서울 노원구 상계동 · Tel: 02-935-0280 · www.jrleetax.co.kr<br>
+  <span style="font-size:11px;color:#888;">※ 본 계산 결과는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.</span>
+</div>
 </body>
 </html>
