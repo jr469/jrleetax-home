@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>복식부기 실무 장부 시스템</title>
+<style>
+  :root{
+    --navy:#1c2b4a; --navy-light:#2d4270; --accent:#2f6fed; --accent-soft:#eaf1ff;
+    --green:#1a7f5a; --red:#c8391e; --gray-bg:#f5f6f8; --line:#dfe3ea; --text:#232838; --sub:#6b7280;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:var(--gray-bg);color:var(--text);}
+  header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-0.3px;}
+  header .sub{font-size:12px;color:#b9c4dd;margin-top:2px;}
+  .headerBtns{display:flex;gap:8px;flex-wrap:wrap;}
+  .headerBtns button{background:var(--navy-light);color:#fff;border:1px solid #4c5f8f;border-radius:6px;padding:7px 12px;font-size:12.5px;cursor:pointer;}
+  .headerBtns button:hover{background:#3a4f82;}
+  .headerBtns input[type=file]{display:none;}
+  nav{background:#fff;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;position:sticky;top:0;z-index:5;}
+  nav button{background:none;border:none;padding:12px 18px;font-size:14px;cursor:pointer;color:var(--sub);white-space:nowrap;border-bottom:3px solid transparent;font-weight:600;}
+  nav button.active{color:var(--navy);border-bottom-color:var(--accent);}
+  main{max-width:1180px;margin:0 auto;padding:20px 16px 60px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:16px;}
+  .card h2{font-size:15px;margin:0 0 14px;color:var(--navy);}
+  .card h3{font-size:13.5px;margin:18px 0 8px;color:var(--navy-light);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:7px 8px;text-align:right;}
+  th{background:#f0f2f6;color:var(--navy);font-weight:700;text-align:center;}
+  td.left,th.left{text-align:left;}
+  td.center{text-align:center;}
+  tr:hover td{background:#fafbff;}
+  input[type=text],input[type=date],input[type=number],select{
+    border:1px solid #c7cdd9;border-radius:5px;padding:6px 8px;font-size:13px;width:100%;font-family:inherit;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+  .field{flex:1;min-width:140px;}
+  .field label{display:block;font-size:11.5px;color:var(--sub);margin-bottom:4px;font-weight:600;}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;}
+  .btn:hover{background:#1d54c9;}
+  .btn.secondary{background:#fff;color:var(--navy);border:1px solid #c7cdd9;}
+  .btn.secondary:hover{background:#f0f2f6;}
+  .btn.danger{background:#fff;color:var(--red);border:1px solid #f0c3b8;}
+  .btn.danger:hover{background:#fff2ee;}
+  .btn.sm{padding:4px 9px;font-size:11.5px;border-radius:5px;}
+  .lineGroup{border:1px dashed #c7cdd9;border-radius:8px;padding:10px;margin-top:8px;}
+  .lineGroup .lineRow{display:flex;gap:8px;margin-bottom:6px;align-items:center;}
+  .lineGroup .lineRow .acc{flex:2;}
+  .lineGroup .lineRow .amt{flex:1.4;}
+  .lineGroup .lineRow .rm{flex:0 0 auto;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge.debit{background:#eaf1ff;color:var(--accent);}
+  .badge.credit{background:#fdecea;color:var(--red);}
+  .badge.closed{background:#eee;color:#888;}
+  .totalsBar{display:flex;gap:18px;margin-top:10px;font-size:13px;font-weight:700;}
+  .totalsBar span.ok{color:var(--green);}
+  .totalsBar span.bad{color:var(--red);}
+  .suggestBox{background:var(--accent-soft);border:1px solid #cfe0ff;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-top:8px;color:#1a3a80;display:none;}
+  .suggestBox b{cursor:pointer;text-decoration:underline;}
+  .tipBox{background:#fff8e6;border:1px solid #f3d98b;border-radius:8px;padding:10px 14px;font-size:12.5px;margin-top:10px;color:#6b4e00;line-height:1.6;}
+  .tipBox b{color:#8a5c00;}
+  .msg{font-size:12px;color:var(--sub);margin-top:6px;}
+  .tag{font-size:11px;background:#eef0f4;border-radius:4px;padding:2px 6px;color:var(--sub);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr;}}
+  .tAccountBox{border:2px solid var(--navy);border-radius:8px;overflow:hidden;}
+  .tAccountBox .tHead{background:var(--navy);color:#fff;text-align:center;padding:8px;font-weight:700;font-size:14px;}
+  .tAccountBox .tBody{display:flex;}
+  .tAccountBox .tSide{flex:1;padding:0;}
+  .tAccountBox .tSide.debitSide{border-right:2px solid var(--navy);}
+  .tAccountBox .tSide table{border:none;}
+  .tAccountBox .tSide th{background:#f7f8fa;font-size:12px;}
+  .tAccountBox .tSide td{font-size:12px;border-left:none;border-right:none;}
+  .statSection h4{background:var(--navy);color:#fff;margin:0;padding:8px 12px;font-size:13px;border-radius:6px 6px 0 0;}
+  .statSection table{border-top:none;}
+  .totalRow td{background:#eef2f9;font-weight:700;}
+  .grandTotal td{background:var(--navy);color:#fff;font-weight:700;font-size:13.5px;}
+  .balanceCheck{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;}
+  .balanceCheck.ok{background:#e8f7ef;color:var(--green);}
+  .balanceCheck.bad{background:#fdecea;color:var(--red);}
+  .empty{color:var(--sub);font-size:13px;text-align:center;padding:30px 0;}
+  .footNote{font-size:11.5px;color:var(--sub);margin-top:14px;line-height:1.6;border-top:1px dashed var(--line);padding-top:10px;}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12px;margin:3px;cursor:pointer;}
+  .pill button{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:0;}
+  .accTypeTag{font-size:10.5px;padding:1px 6px;border-radius:4px;color:#fff;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>복식부기 실무 장부 시스템</h1>
+    <div class="sub" id="periodLabel">거래를 입력하면 분개장 · T계정 · 손익계산서 · 재무상태표가 자동 생성됩니다</div>
+  </div>
+  <div class="headerBtns">
+    <button onclick="exportJSON()">JSON 내보내기</button>
+    <button onclick="document.getElementById('importFile').click()">JSON 불러오기</button>
+    <input type="file" id="importFile" accept=".json" onchange="importJSON(event)">
+    <button onclick="resetAll()">전체 초기화</button>
+  </div>
+</header>
+
+<nav id="tabNav"></nav>
+
+<main id="mainArea"></main>
+
+<script>
+/* =========================================================
+   상태 관리 (State)
+========================================================= */
+const STORAGE_KEY = 'doubleEntryBookkeeping_v1';
+
+const DEFAULT_ACCOUNTS = [
+  {id:'a1', name:'현금', type:'asset'},
+  {id:'a2', name:'보통예금', type:'asset'},
+  {id:'a3', name:'외상매출금', type:'asset'},
+  {id:'a4', name:'받을어음', type:'asset'},
+  {id:'a5', name:'미수금', type:'asset'},
+  {id:'a6', name:'선급금', type:'asset'},
+  {id:'a7', name:'선급비용', type:'asset'},
+  {id:'a8', name:'부가세대급금', type:'asset'},
+  {id:'a9', name:'재고자산', type:'asset'},
+  {id:'a10', name:'비품', type:'asset'},
+  {id:'a11', name:'차량운반구', type:'asset'},
+  {id:'a12', name:'감가상각누계액(비품)', type:'asset', contra:true},
+  {id:'a13', name:'감가상각누계액(차량운반구)', type:'asset', contra:true},
+  {id:'a14', name:'건물', type:'asset'},
+  {id:'a15', name:'토지', type:'asset'},
+  {id:'a16', name:'임차보증금', type:'asset'},
+  {id:'l1', name:'외상매입금', type:'liability'},
+  {id:'l2', name:'지급어음', type:'liability'},
+  {id:'l3', name:'미지급금', type:'liability'},
+  {id:'l4', name:'미지급비용', type:'liability'},
+  {id:'l5', name:'예수금', type:'liability'},
+  {id:'l6', name:'부가세예수금', type:'liability'},
+  {id:'l7', name:'선수금', type:'liability'},
+  {id:'l8', name:'단기차입금', type:'liability'},
+  {id:'l9', name:'장기차입금', type:'liability'},
+  {id:'e1', name:'자본금', type:'equity'},
+  {id:'e2', name:'인출금', type:'equity', contra:true},
+  {id:'e3', name:'이익잉여금', type:'equity'},
+  {id:'e4', name:'집합손익', type:'equity', system:true},
+  {id:'r1', name:'매출', type:'revenue'},
+  {id:'r2', name:'이자수익', type:'revenue'},
+  {id:'r3', name:'잡이익', type:'revenue'},
+  {id:'x1p', name:'매입', type:'expense'},
+  {id:'x1', name:'매출원가', type:'expense'},
+  {id:'x2', name:'급여', type:'expense'},
+  {id:'x3', name:'퇴직급여', type:'expense'},
+  {id:'x4', name:'복리후생비', type:'expense'},
+  {id:'x5', name:'여비교통비', type:'expense'},
+  {id:'x6', name:'접대비(기업업무추진비)', type:'expense'},
+  {id:'x7', name:'통신비', type:'expense'},
+  {id:'x8', name:'수도광열비', type:'expense'},
+  {id:'x9', name:'세금과공과', type:'expense'},
+  {id:'x10', name:'감가상각비', type:'expense'},
+  {id:'x11', name:'지급임차료', type:'expense'},
+  {id:'x12', name:'보험료', type:'expense'},
+  {id:'x13', name:'차량유지비', type:'expense'},
+  {id:'x14', name:'소모품비', type:'expense'},
+  {id:'x15', name:'광고선전비', type:'expense'},
+  {id:'x16', name:'지급수수료', type:'expense'},
+  {id:'x17', name:'이자비용', type:'expense'},
+  {id:'x18', name:'잡비', type:'expense'},
+];
+
+const DEFAULT_RULES = [
+  {keywords:['급여','월급','임금'], debit:'급여', credit:'보통예금'},
+  {keywords:['4대보험','국민연금','건강보험','고용보험','산재보험'], debit:'복리후생비', credit:'보통예금'},
+  {keywords:['임차료','월세','사무실임대'], debit:'지급임차료', credit:'보통예금'},
+  {keywords:['통신비','휴대폰','인터넷요금'], debit:'통신비', credit:'보통예금'},
+  {keywords:['전기요금','수도요금','가스요금','관리비'], debit:'수도광열비', credit:'보통예금'},
+  {keywords:['식대','접대','거래처식사','회식'], debit:'접대비(기업업무추진비)', credit:'보통예금'},
+  {keywords:['출장','교통비','주유','택시','KTX'], debit:'여비교통비', credit:'보통예금'},
+  {keywords:['소모품','사무용품','문구'], debit:'소모품비', credit:'보통예금'},
+  {keywords:['광고','홍보','마케팅'], debit:'광고선전비', credit:'보통예금'},
+  {keywords:['수수료','카드수수료','송금수수료','이체수수료'], debit:'지급수수료', credit:'보통예금'},
+  {keywords:['보험료'], debit:'보험료', credit:'보통예금'},
+  {keywords:['차량유지','정비','주차','세차'], debit:'차량유지비', credit:'보통예금'},
+  {keywords:['이자비용','대출이자'], debit:'이자비용', credit:'보통예금'},
+  {keywords:['이자수익','예금이자'], debit:'보통예금', credit:'이자수익'},
+  {keywords:['매출','판매대금','제품판매','상품판매','물품대금 입금'], debit:'보통예금', credit:'매출'},
+  {keywords:['외상매출금회수','매출채권회수'], debit:'보통예금', credit:'외상매출금'},
+  {keywords:['매입','원재료','상품매입','원자재'], debit:'매입', credit:'보통예금'},
+  {keywords:['외상매입금지급','매입채무지급'], debit:'외상매입금', credit:'보통예금'},
+  {keywords:['부가세납부','부가가치세납부'], debit:'부가세예수금', credit:'보통예금'},
+  {keywords:['원천세납부','근로소득세납부'], debit:'예수금', credit:'보통예금'},
+  {keywords:['대출금상환','차입금상환'], debit:'단기차입금', credit:'보통예금'},
+  {keywords:['대출실행','차입금입금'], debit:'보통예금', credit:'단기차입금'},
+  {keywords:['대표자입금','대표이사입금','사업주출자','자본금입금'], debit:'보통예금', credit:'자본금'},
+  {keywords:['대표자인출','대표이사인출','개인사용'], debit:'인출금', credit:'보통예금'},
+  {keywords:['비품구입','비품구매','집기구입'], debit:'비품', credit:'보통예금'},
+  {keywords:['차량구입','차량매입'], debit:'차량운반구', credit:'보통예금'},
+  {keywords:['감가상각'], debit:'감가상각비', credit:'감가상각누계액(비품)'},
+  {keywords:['잡이익'], debit:'보통예금', credit:'잡이익'},
+  {keywords:['잡비'], debit:'잡비', credit:'보통예금'},
+];
+
+let state = null;
+
+function defaultState(){
+  return {
+    accounts: JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS)),
+    rules: JSON.parse(JSON.stringify(DEFAULT_RULES)),
+    entries: [],
+    closings: [],
+    seq: 1
+  };
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ state = JSON.parse(raw); }
+    else { state = defaultState(); }
+  }catch(e){ state = defaultState(); }
+  if(!state.accounts) state.accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+  if(!state.rules) state.rules = JSON.parse(JSON.stringify(DEFAULT_RULES));
+  if(!state.entries) state.entries = [];
+  if(!state.closings) state.closings = [];
+  if(!state.seq) state.seq = 1;
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function nextId(prefix){
+  const id = prefix + state.seq;
+  state.seq += 1;
+  return id;
+}
+
+/* =========================================================
+   유틸 함수
+========================================================= */
+function fmt(n){
+  n = Math.round(n || 0);
+  return n.toLocaleString('ko-KR');
+}
+function unformat(s){
+  if(typeof s !== 'string') return Number(s)||0;
+  return Number(s.replace(/[^0-9.-]/g,'')) || 0;
+}
+function attachComma(input){
+  input.addEventListener('input', ()=>{
+    const cursorFromEnd = input.value.length - input.selectionStart;
+    let raw = input.value.replace(/[^0-9]/g,'');
+    input.value = raw ? Number(raw).toLocaleString('ko-KR') : '';
+    const pos = Math.max(0, input.value.length - cursorFromEnd);
+    input.setSelectionRange(pos,pos);
+  });
+}
+function formatEntryLine(entry){
+  const debitParts = entry.lines.filter(l=>l.side==='debit');
+  const creditParts = entry.lines.filter(l=>l.side==='credit');
+  const fmtSide = arr => arr.length<=1 ? (arr[0]?arr[0].account:'') : arr.map(l=>l.account+' '+fmt(l.amount)).join(', ');
+  const debitStr = fmtSide(debitParts);
+  const creditStr = fmtSide(creditParts);
+  const total = debitParts.reduce((s,l)=>s+l.amount,0);
+  return {debitStr, creditStr, total};
+}
+function accountByName(name){
+  return state.accounts.find(a=>a.name===name);
+}
+function normalSide(acc){
+  if(!acc) return 'debit';
+  let base = (acc.type==='asset' || acc.type==='expense') ? 'debit' : 'credit';
+  if(acc.contra) base = base==='debit' ? 'credit' : 'debit';
+  return base;
+}
+function typeLabel(t){
+  return {asset:'자산',liability:'부채',equity:'자본',revenue:'수익',expense:'비용'}[t] || t;
+}
+function typeColor(t){
+  return {asset:'#2f6fed',liability:'#c8391e',equity:'#8a5cf6',revenue:'#1a7f5a',expense:'#c07a1e'}[t] || '#888';
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function allEntryDates(){
+  return state.entries.map(e=>e.date).sort();
+}
+function lastEntryDate(){
+  const ds = allEntryDates();
+  return ds.length ? ds[ds.length-1] : todayStr();
+}
+
+/* =========================================================
+   계정 잔액 계산
+========================================================= */
+// lines: 모든 entries(마감분개 포함)에서 특정 계정의 라인들을 날짜순으로 반환
+function accountLines(accountName, opts){
+  opts = opts || {};
+  const fromDate = opts.fromDate || null;
+  const toDate = opts.toDate || null;
+  const excludeClosing = !!opts.excludeClosing;
+  const onlyUnclosed = !!opts.onlyUnclosed;
+  let out = [];
+  state.entries.forEach(entry=>{
+    if(fromDate && entry.date < fromDate) return;
+    if(toDate && entry.date > toDate) return;
+    if(excludeClosing && entry.closingEntry) return;
+    if(onlyUnclosed && entry.closed) return;
+    entry.lines.forEach(line=>{
+      if(line.account === accountName){
+        out.push({date:entry.date, desc:entry.desc, side:line.side, amount:line.amount, entryId:entry.id, closingEntry:!!entry.closingEntry});
+      }
+    });
+  });
+  out.sort((a,b)=> a.date < b.date ? -1 : (a.date > b.date ? 1 : 0));
+  return out;
+}
+
+function accountBalance(accountName, opts){
+  const acc = accountByName(accountName);
+  const lines = accountLines(accountName, opts);
+  let debitSum=0, creditSum=0;
+  lines.forEach(l=>{ if(l.side==='debit') debitSum+=l.amount; else creditSum+=l.amount; });
+  const normal = normalSide(acc);
+  return normal==='debit' ? (debitSum-creditSum) : (creditSum-debitSum);
+}
+
+function unclosedNetIncome(asOfDate){
+  let total = 0;
+  state.accounts.forEach(acc=>{
+    if(acc.type==='revenue'){
+      total += accountBalance(acc.name, {toDate:asOfDate, onlyUnclosed:true, excludeClosing:true});
+    }else if(acc.type==='expense'){
+      total -= accountBalance(acc.name, {toDate:asOfDate, onlyUnclosed:true, excludeClosing:true});
+    }
+  });
+  return total;
+}
+
+/* =========================================================
+   탭 구성
+========================================================= */
+const TABS = [
+  {id:'entry', label:'거래입력'},
+  {id:'journal', label:'분개장'},
+  {id:'taccount', label:'T계정'},
+  {id:'pl', label:'손익계산서'},
+  {id:'bs', label:'재무상태표'},
+  {id:'accounts', label:'계정과목·자동추천'},
+  {id:'closing', label:'마감'}
+];
+let activeTab = 'entry';
+
+function renderNav(){
+  const nav = document.getElementById('tabNav');
+  const parts = [];
+  TABS.forEach(t=>{
+    parts.push('<button data-tab="'+t.id+'" class="'+(activeTab===t.id?'active':'')+'">'+t.label+'</button>');
+  });
+  nav.innerHTML = parts.join('');
+  nav.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ activeTab = btn.dataset.tab; render(); });
+  });
+}
+
+function render(){
+  renderNav();
+  const main = document.getElementById('mainArea');
+  if(activeTab==='entry') main.innerHTML = renderEntryTab();
+  else if(activeTab==='journal') main.innerHTML = renderJournalTab();
+  else if(activeTab==='taccount') main.innerHTML = renderTAccountTab();
+  else if(activeTab==='pl') main.innerHTML = renderPLTab();
+  else if(activeTab==='bs') main.innerHTML = renderBSTab();
+  else if(activeTab==='accounts') main.innerHTML = renderAccountsTab();
+  else if(activeTab==='closing') main.innerHTML = renderClosingTab();
+  bindTabEvents();
+  updatePeriodLabel();
+}
+
+function updatePeriodLabel(){
+  const el = document.getElementById('periodLabel');
+  const n = state.entries.filter(e=>!e.closingEntry).length;
+  const lastClose = state.closings.length ? state.closings[state.closings.length-1].date : '없음';
+  el.textContent = '입력 거래 '+n+'건 · 마지막 마감일: '+lastClose+' · 자동저장됨';
+}
+
+/* =========================================================
+   1) 거래입력 탭
+========================================================= */
+let draftLines = { debit:[{account:'',amount:''}], credit:[{account:'',amount:''}] };
+let draftDate = todayStr();
+let draftDesc = '';
+
+function accountOptions(selected, excludeSystem){
+  let opts = ['<option value="">계정 선택</option>'];
+  const groups = ['asset','liability','equity','revenue','expense'];
+  groups.forEach(g=>{
+    const list = state.accounts.filter(a=>a.type===g && (!excludeSystem || !a.system));
+    if(!list.length) return;
+    opts.push('<optgroup label="'+typeLabel(g)+'">');
+    list.forEach(a=>{
+      opts.push('<option value="'+a.name+'" '+(a.name===selected?'selected':'')+'>'+a.name+'</option>');
+    });
+    opts.push('</optgroup>');
+  });
+  return opts.join('');
+}
+
+function renderEntryTab(){
+  const parts = [];
+  parts.push('<div class="card">');
+  parts.push('<h2>거래 입력</h2>');
+  parts.push('<div class="row">');
+  parts.push('<div class="field"><label>날짜</label><input type="date" id="entryDate" value="'+draftDate+'"></div>');
+  parts.push('<div class="field" style="flex:3"><label>거래내용(적요)</label><input type="text" id="entryDesc" placeholder="예: 직원 급여 지급, 사무실 임차료 이체 등" value="'+escapeAttr(draftDesc)+'" list="descHistory"></div>');
+  parts.push('<datalist id="descHistory">'+ [...new Set(state.entries.map(e=>e.desc))].map(d=>'<option value="'+escapeAttr(d)+'">').join('') +'</datalist>');
+  parts.push('<div class="field" style="flex:0 0 auto;"><label>&nbsp;</label><button class="btn secondary" id="suggestBtn">자동추천</button></div>');
+  parts.push('</div>');
+  parts.push('<div id="suggestBox" class="suggestBox"></div>');
+  parts.push('<div class="tipBox">💡 <b>상품·원재료를 구입</b>할 때는 "매출원가"가 아니라 <b>"매입"</b> 계정으로 분개하세요 (3분법). 매출원가는 기말 결산 시 재고실사법으로 자동 계산됩니다 → "마감" 탭 참고.</div>');
+
+  parts.push('<div class="grid2">');
+  parts.push('<div class="lineGroup"><h3 style="margin-top:0">차변 (Debit)</h3><div id="debitLines"></div><button class="btn secondary sm" id="addDebit">+ 차변 줄 추가</button></div>');
+  parts.push('<div class="lineGroup"><h3 style="margin-top:0">대변 (Credit)</h3><div id="creditLines"></div><button class="btn secondary sm" id="addCredit">+ 대변 줄 추가</button></div>');
+  parts.push('</div>');
+
+  parts.push('<div class="totalsBar" id="totalsBar"></div>');
+  parts.push('<div style="margin-top:14px;"><button class="btn" id="saveEntryBtn">분개 저장</button> <button class="btn secondary" id="clearEntryBtn">입력 초기화</button></div>');
+  parts.push('<div class="footNote">거래내용을 입력하고 "자동추천"을 누르면 자주 쓰는 계정과목 조합을 제안합니다. 차변 합계와 대변 합계가 일치해야 저장됩니다. 3개 이상 계정이 얽힌 복합 분개는 줄을 추가해 입력하세요.</div>');
+  parts.push('</div>');
+
+  // 최근 입력 5건 미리보기
+  const recent = [...state.entries].filter(e=>!e.closingEntry).sort((a,b)=> (a.date<b.date?1:(a.date>b.date?-1:0))).slice(0,5);
+  parts.push('<div class="card"><h2>최근 입력 거래</h2>');
+  if(!recent.length){ parts.push('<div class="empty">아직 입력된 거래가 없습니다.</div>'); }
+  else{
+    parts.push('<table><tr><th>날짜</th><th class="left">적요</th><th class="left">분개</th><th>금액</th><th></th></tr>');
+    recent.forEach(e=>{
+      const {debitStr, creditStr, total} = formatEntryLine(e);
+      parts.push('<tr><td class="center">'+e.date+'</td><td class="left">'+escapeHtml(e.desc)+'</td><td class="left">(차)'+escapeHtml(debitStr)+' / (대)'+escapeHtml(creditStr)+'</td><td>'+fmt(total)+'</td><td class="center">'+(e.closed?'<span class="badge closed">마감</span>':'<button class="btn danger sm" data-del="'+e.id+'">삭제</button>')+'</td></tr>');
+    });
+    parts.push('</table>');
+  }
+  parts.push('</div>');
+  return parts.join('');
+}
+
+function lineRowHtml(side, idx, line){
+  return '<div class="lineRow">'
+    + '<div class="acc"><select data-side="'+side+'" data-idx="'+idx+'" class="lineAccSel">'+accountOptions(line.account, true)+'</select></div>'
+    + '<div class="amt"><input type="text" inputmode="numeric" data-side="'+side+'" data-idx="'+idx+'" class="lineAmt" placeholder="금액" value="'+(line.amount?Number(line.amount).toLocaleString('ko-KR'):'')+'"></div>'
+    + '<div class="rm"><button class="btn danger sm" data-side="'+side+'" data-idx="'+idx+'" data-action="removeLine">삭제</button></div>'
+    + '</div>';
+}
+
+function renderLineGroups(){
+  document.getElementById('debitLines').innerHTML = draftLines.debit.map((l,i)=>lineRowHtml('debit',i,l)).join('');
+  document.getElementById('creditLines').innerHTML = draftLines.credit.map((l,i)=>lineRowHtml('credit',i,l)).join('');
+  document.querySelectorAll('.lineAmt').forEach(attachComma);
+  document.querySelectorAll('.lineAccSel, .lineAmt').forEach(el=>{
+    el.addEventListener('change', syncDraftFromDOM);
+    el.addEventListener('input', ()=>{ syncDraftFromDOM(false); updateTotalsBar(); });
+  });
+  document.querySelectorAll('[data-action=removeLine]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const side = btn.dataset.side, idx = Number(btn.dataset.idx);
+      if(draftLines[side].length>1) draftLines[side].splice(idx,1);
+      else draftLines[side][0] = {account:'',amount:''};
+      renderLineGroups(); updateTotalsBar();
+    });
+  });
+  updateTotalsBar();
+}
+
+function syncDraftFromDOM(rerender){
+  document.querySelectorAll('.lineAccSel').forEach(sel=>{
+    draftLines[sel.dataset.side][Number(sel.dataset.idx)].account = sel.value;
+  });
+  document.querySelectorAll('.lineAmt').forEach(inp=>{
+    draftLines[inp.dataset.side][Number(inp.dataset.idx)].amount = unformat(inp.value);
+  });
+}
+
+function updateTotalsBar(){
+  const debitSum = draftLines.debit.reduce((s,l)=>s+(unformat(String(l.amount))||0),0);
+  const creditSum = draftLines.credit.reduce((s,l)=>s+(unformat(String(l.amount))||0),0);
+  const ok = debitSum===creditSum && debitSum>0;
+  document.getElementById('totalsBar').innerHTML =
+    '<span>차변 합계: '+fmt(debitSum)+'원</span>'
+    + '<span>대변 합계: '+fmt(creditSum)+'원</span>'
+    + '<span class="'+(ok?'ok':'bad')+'">'+(ok?'✔ 대차 일치':'✘ 대차 불일치 (차이 '+fmt(Math.abs(debitSum-creditSum))+'원)')+'</span>';
+}
+
+function findRule(desc){
+  const norm = (desc||'').replace(/\s/g,'');
+  for(const r of state.rules){
+    for(const kw of r.keywords){
+      if(norm.includes(kw.replace(/\s/g,''))) return r;
+    }
+  }
+  return null;
+}
+
+function bindEntryTabEvents(){
+  renderLineGroups();
+  document.getElementById('entryDate').addEventListener('change', e=>{ draftDate = e.target.value; });
+  document.getElementById('entryDesc').addEventListener('input', e=>{ draftDesc = e.target.value; });
+  document.getElementById('addDebit').addEventListener('click', ()=>{ draftLines.debit.push({account:'',amount:''}); renderLineGroups(); });
+  document.getElementById('addCredit').addEventListener('click', ()=>{ draftLines.credit.push({account:'',amount:''}); renderLineGroups(); });
+  document.getElementById('suggestBtn').addEventListener('click', ()=>{
+    const desc = document.getElementById('entryDesc').value;
+    const rule = findRule(desc);
+    const box = document.getElementById('suggestBox');
+    if(!rule){
+      box.style.display='block';
+      box.innerHTML = '일치하는 자동추천 규칙이 없습니다. 계정과목·자동추천 탭에서 규칙을 추가할 수 있습니다.';
+      return;
+    }
+    box.style.display='block';
+    box.innerHTML = '추천: (차) <b id="applySuggest">'+rule.debit+'</b> / (대) '+rule.credit+' &nbsp;<button class="btn sm" id="applySuggestBtn">적용</button>';
+    document.getElementById('applySuggestBtn').addEventListener('click', ()=>{
+      if(!draftLines.debit[0].account) draftLines.debit[0].account = rule.debit;
+      else draftLines.debit.push({account:rule.debit, amount:''});
+      if(!draftLines.credit[0].account) draftLines.credit[0].account = rule.credit;
+      else draftLines.credit.push({account:rule.credit, amount:''});
+      renderLineGroups();
+    });
+  });
+  document.getElementById('saveEntryBtn').addEventListener('click', saveEntry);
+  document.getElementById('clearEntryBtn').addEventListener('click', ()=>{
+    draftLines = { debit:[{account:'',amount:''}], credit:[{account:'',amount:''}] };
+    draftDesc=''; render();
+  });
+  document.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(confirm('이 거래를 삭제하시겠습니까?')){
+        state.entries = state.entries.filter(e=>e.id!==btn.dataset.del);
+        saveState(); render();
+      }
+    });
+  });
+}
+
+function saveEntry(){
+  syncDraftFromDOM();
+  const date = document.getElementById('entryDate').value;
+  const desc = document.getElementById('entryDesc').value.trim();
+  if(!date){ alert('날짜를 입력하세요.'); return; }
+  if(!desc){ alert('거래내용(적요)을 입력하세요.'); return; }
+  const debitLines = draftLines.debit.filter(l=>l.account && unformat(String(l.amount))>0)
+    .map(l=>({account:l.account, side:'debit', amount:unformat(String(l.amount))}));
+  const creditLines = draftLines.credit.filter(l=>l.account && unformat(String(l.amount))>0)
+    .map(l=>({account:l.account, side:'credit', amount:unformat(String(l.amount))}));
+  if(!debitLines.length || !creditLines.length){ alert('차변과 대변에 각각 최소 1개 이상의 계정과 금액을 입력하세요.'); return; }
+  const debitSum = debitLines.reduce((s,l)=>s+l.amount,0);
+  const creditSum = creditLines.reduce((s,l)=>s+l.amount,0);
+  if(debitSum !== creditSum){ alert('차변 합계와 대변 합계가 일치하지 않습니다.\\n차변: '+fmt(debitSum)+' / 대변: '+fmt(creditSum)); return; }
+
+  const entry = {
+    id: nextId('e'),
+    date: date,
+    desc: desc,
+    lines: debitLines.concat(creditLines),
+    closed: false,
+    closingEntry: false
+  };
+  state.entries.push(entry);
+  saveState();
+  draftLines = { debit:[{account:'',amount:''}], credit:[{account:'',amount:''}] };
+  draftDesc = '';
+  draftDate = date;
+  render();
+}
+
+/* =========================================================
+   2) 분개장 탭
+========================================================= */
+function renderJournalTab(){
+  const parts = [];
+  parts.push('<div class="card"><h2>분개장 (Journal)</h2>');
+  const entries = [...state.entries].sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:(a.id<b.id?-1:1)));
+  if(!entries.length){ parts.push('<div class="empty">입력된 거래가 없습니다. "거래입력" 탭에서 시작하세요.</div></div>'); return parts.join(''); }
+  parts.push('<table><tr><th style="width:100px">날짜</th><th class="left">적요</th><th class="left">분개</th><th style="width:120px">금액</th><th style="width:70px"></th></tr>');
+  entries.forEach(entry=>{
+    const {debitStr, creditStr, total} = formatEntryLine(entry);
+    const tag = entry.closingEntry ? ' <span class="tag">마감분개</span>' : (entry.inventoryEntry ? ' <span class="tag">재고정리</span>' : '');
+    const action = entry.closed ? '<span class="badge closed">마감</span>' : (entry.closingEntry||entry.inventoryEntry ? '' : '<button class="btn danger sm" data-del="'+entry.id+'">삭제</button>');
+    parts.push('<tr><td class="center">'+entry.date+tag+'</td><td class="left">'+escapeHtml(entry.desc)+'</td><td class="left">(차)'+escapeHtml(debitStr)+' / (대)'+escapeHtml(creditStr)+'</td><td>'+fmt(total)+'</td><td class="center">'+action+'</td></tr>');
+  });
+  parts.push('</table></div>');
+  return parts.join('');
+}
+
+/* =========================================================
+   3) T계정 탭
+========================================================= */
+let selectedTAccount = null;
+function renderTAccountTab(){
+  const parts = [];
+  parts.push('<div class="card"><h2>T계정</h2>');
+  parts.push('<div class="field" style="max-width:320px"><label>계정과목 선택</label><select id="tAccSel">'+accountOptions(selectedTAccount, false)+'</select></div>');
+  parts.push('</div>');
+
+  if(!selectedTAccount){ parts.push('<div class="card"><div class="empty">계정과목을 선택하면 T계정 형태로 표시됩니다.</div></div>'); return parts.join(''); }
+
+  const acc = accountByName(selectedTAccount);
+  const lines = accountLines(selectedTAccount, {});
+  const debitLines = lines.filter(l=>l.side==='debit');
+  const creditLines = lines.filter(l=>l.side==='credit');
+  const debitSum = debitLines.reduce((s,l)=>s+l.amount,0);
+  const creditSum = creditLines.reduce((s,l)=>s+l.amount,0);
+  const balance = normalSide(acc)==='debit' ? debitSum-creditSum : creditSum-debitSum;
+
+  parts.push('<div class="card">');
+  parts.push('<div class="tAccountBox">');
+  parts.push('<div class="tHead">'+selectedTAccount+' <span class="tag" style="background:'+typeColor(acc.type)+';color:#fff;">'+typeLabel(acc.type)+'</span></div>');
+  parts.push('<div class="tBody">');
+  parts.push('<div class="tSide debitSide"><table><tr><th>날짜</th><th class="left">적요</th><th>금액</th></tr>');
+  if(!debitLines.length) parts.push('<tr><td colspan="3" class="empty">-</td></tr>');
+  debitLines.forEach(l=>{ parts.push('<tr><td class="center">'+l.date+'</td><td class="left">'+escapeHtml(l.desc)+(l.closingEntry?' <span class="tag">마감</span>':'')+'</td><td>'+fmt(l.amount)+'</td></tr>'); });
+  parts.push('<tr class="totalRow"><td colspan="2" class="left">차변 합계</td><td>'+fmt(debitSum)+'</td></tr>');
+  parts.push('</table></div>');
+  parts.push('<div class="tSide creditSide"><table><tr><th>날짜</th><th class="left">적요</th><th>금액</th></tr>');
+  if(!creditLines.length) parts.push('<tr><td colspan="3" class="empty">-</td></tr>');
+  creditLines.forEach(l=>{ parts.push('<tr><td class="center">'+l.date+'</td><td class="left">'+escapeHtml(l.desc)+(l.closingEntry?' <span class="tag">마감</span>':'')+'</td><td>'+fmt(l.amount)+'</td></tr>'); });
+  parts.push('<tr class="totalRow"><td colspan="2" class="left">대변 합계</td><td>'+fmt(creditSum)+'</td></tr>');
+  parts.push('</table></div>');
+  parts.push('</div></div>');
+  parts.push('<div class="balanceCheck ok" style="margin-top:14px;">현재 잔액 ('+(normalSide(acc)==='debit'?'차변':'대변')+' 잔액): '+fmt(balance)+'원</div>');
+  parts.push('</div>');
+  return parts.join('');
+}
+
+/* =========================================================
+   4) 손익계산서 탭
+========================================================= */
+let plFrom = null, plTo = null;
+function renderPLTab(){
+  if(!plFrom) plFrom = state.closings.length ? addDays(state.closings[state.closings.length-1].date,1) : (allEntryDates()[0] || todayStr());
+  if(!plTo) plTo = lastEntryDate();
+  const parts = [];
+  parts.push('<div class="card"><h2>손익계산서 (Income Statement)</h2>');
+  parts.push('<div class="row">');
+  parts.push('<div class="field"><label>시작일</label><input type="date" id="plFrom" value="'+plFrom+'"></div>');
+  parts.push('<div class="field"><label>종료일</label><input type="date" id="plTo" value="'+plTo+'"></div>');
+  parts.push('</div></div>');
+
+  const revenueAccs = state.accounts.filter(a=>a.type==='revenue');
+  const expenseAccs = state.accounts.filter(a=>a.type==='expense');
+  const opts = {fromDate:plFrom, toDate:plTo, excludeClosing:true};
+  let revTotal=0, expTotal=0;
+  const revRows = revenueAccs.map(a=>{ const b=accountBalance(a.name,opts); revTotal+=b; return {name:a.name,b}; }).filter(r=>r.b!==0);
+  const expRows = expenseAccs.map(a=>{ const b=accountBalance(a.name,opts); expTotal+=b; return {name:a.name,b}; }).filter(r=>r.b!==0);
+  const netIncome = revTotal - expTotal;
+
+  parts.push('<div class="card">');
+  parts.push('<div class="statSection"><h4>수익 (Revenue)</h4><table>');
+  if(!revRows.length) parts.push('<tr><td class="empty" colspan="2">해당 기간 수익 내역 없음</td></tr>');
+  revRows.forEach(r=> parts.push('<tr><td class="left">'+r.name+'</td><td>'+fmt(r.b)+'</td></tr>'));
+  parts.push('<tr class="totalRow"><td class="left">수익 합계</td><td>'+fmt(revTotal)+'</td></tr>');
+  parts.push('</table></div>');
+
+  parts.push('<div class="statSection" style="margin-top:16px;"><h4>비용 (Expense)</h4><table>');
+  if(!expRows.length) parts.push('<tr><td class="empty" colspan="2">해당 기간 비용 내역 없음</td></tr>');
+  expRows.forEach(r=> parts.push('<tr><td class="left">'+r.name+'</td><td>'+fmt(r.b)+'</td></tr>'));
+  parts.push('<tr class="totalRow"><td class="left">비용 합계</td><td>'+fmt(expTotal)+'</td></tr>');
+  parts.push('</table></div>');
+
+  parts.push('<table style="margin-top:16px;"><tr class="grandTotal"><td class="left">'+(netIncome>=0?'당기순이익':'당기순손실')+'</td><td>'+fmt(Math.abs(netIncome))+'</td></tr></table>');
+  parts.push('<div class="footNote">지정한 기간(시작일~종료일) 내 발생한 수익·비용 거래를 집계한 결과입니다. 마감분개(집합손익 대체)는 집계에서 제외되며, 마감을 실행하면 해당 기간 순이익이 이익잉여금으로 대체됩니다.<br>※ 재고실사법 적용: "매입" 계정은 마감 시점에 실지재고조사(기말재고 실사)를 거쳐 매출원가로 대체되므로, 마감 전에는 매출원가가 0으로 표시됩니다.</div>');
+  parts.push('</div>');
+  return parts.join('');
+}
+
+/* =========================================================
+   5) 재무상태표 탭
+========================================================= */
+let bsAsOf = null;
+function renderBSTab(){
+  if(!bsAsOf) bsAsOf = lastEntryDate();
+  const parts = [];
+  parts.push('<div class="card"><h2>재무상태표 (Balance Sheet)</h2>');
+  parts.push('<div class="row"><div class="field" style="max-width:220px"><label>기준일</label><input type="date" id="bsAsOf" value="'+bsAsOf+'"></div></div>');
+  parts.push('</div>');
+
+  const opts = {toDate:bsAsOf};
+  const assetAccs = state.accounts.filter(a=>a.type==='asset');
+  const liabAccs = state.accounts.filter(a=>a.type==='liability');
+  const equityAccs = state.accounts.filter(a=>a.type==='equity' && !a.system);
+
+  let assetTotal=0, liabTotal=0, equityTotal=0;
+  const assetRows = assetAccs.map(a=>{const b=accountBalance(a.name,opts); assetTotal+=b; return {name:a.name,b};}).filter(r=>r.b!==0);
+  const liabRows = liabAccs.map(a=>{const b=accountBalance(a.name,opts); liabTotal+=b; return {name:a.name,b};}).filter(r=>r.b!==0);
+  const equityRows = equityAccs.map(a=>{const b=accountBalance(a.name,opts); equityTotal+=b; return {name:a.name,b};}).filter(r=>r.b!==0);
+
+  const unclosedNI = unclosedNetIncome(bsAsOf);
+  if(unclosedNI !== 0){ equityRows.push({name:'당기순이익(미마감, 가결산)', b:unclosedNI}); equityTotal += unclosedNI; }
+
+  parts.push('<div class="grid2">');
+  parts.push('<div class="card" style="margin-bottom:0;">');
+  parts.push('<div class="statSection"><h4>자산 (Assets)</h4><table>');
+  if(!assetRows.length) parts.push('<tr><td class="empty" colspan="2">내역 없음</td></tr>');
+  assetRows.forEach(r=> parts.push('<tr><td class="left">'+r.name+'</td><td>'+fmt(r.b)+'</td></tr>'));
+  parts.push('<tr class="grandTotal"><td class="left">자산 총계</td><td>'+fmt(assetTotal)+'</td></tr>');
+  parts.push('</table></div></div>');
+
+  parts.push('<div class="card" style="margin-bottom:0;">');
+  parts.push('<div class="statSection"><h4>부채 (Liabilities)</h4><table>');
+  if(!liabRows.length) parts.push('<tr><td class="empty" colspan="2">내역 없음</td></tr>');
+  liabRows.forEach(r=> parts.push('<tr><td class="left">'+r.name+'</td><td>'+fmt(r.b)+'</td></tr>'));
+  parts.push('<tr class="totalRow"><td class="left">부채 총계</td><td>'+fmt(liabTotal)+'</td></tr>');
+  parts.push('</table></div>');
+
+  parts.push('<div class="statSection" style="margin-top:16px;"><h4>자본 (Equity)</h4><table>');
+  if(!equityRows.length) parts.push('<tr><td class="empty" colspan="2">내역 없음</td></tr>');
+  equityRows.forEach(r=> parts.push('<tr><td class="left">'+r.name+'</td><td>'+fmt(r.b)+'</td></tr>'));
+  parts.push('<tr class="totalRow"><td class="left">자본 총계</td><td>'+fmt(equityTotal)+'</td></tr>');
+  parts.push('</table></div>');
+  parts.push('<table style="margin-top:16px;"><tr class="grandTotal"><td class="left">부채와 자본 총계</td><td>'+fmt(liabTotal+equityTotal)+'</td></tr></table>');
+  parts.push('</div>');
+  parts.push('</div>');
+
+  const diff = assetTotal - (liabTotal+equityTotal);
+  parts.push('<div class="balanceCheck '+(diff===0?'ok':'bad')+'">'+(diff===0?'✔ 자산 = 부채 + 자본 (대차 일치)':'✘ 불일치: 차이 '+fmt(Math.abs(diff))+'원 — 계정과목 분류를 확인하세요.')+'</div>');
+  return parts.join('');
+}
+
+function addDays(dateStr, n){
+  const d = new Date(dateStr+'T00:00:00');
+  d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+/* =========================================================
+   6) 계정과목 · 자동추천 규칙 관리 탭
+========================================================= */
+function renderAccountsTab(){
+  const parts = [];
+  parts.push('<div class="card"><h2>계정과목 관리</h2>');
+  parts.push('<div class="row">');
+  parts.push('<div class="field"><label>계정명</label><input type="text" id="newAccName" placeholder="예: 복리후생비"></div>');
+  parts.push('<div class="field" style="flex:0 0 160px"><label>구분</label><select id="newAccType"><option value="asset">자산</option><option value="liability">부채</option><option value="equity">자본</option><option value="revenue">수익</option><option value="expense">비용</option></select></div>');
+  parts.push('<div class="field" style="flex:0 0 auto"><label>&nbsp;</label><button class="btn" id="addAccBtn">추가</button></div>');
+  parts.push('</div>');
+  parts.push('<div style="margin-top:12px;">');
+  ['asset','liability','equity','revenue','expense'].forEach(t=>{
+    const list = state.accounts.filter(a=>a.type===t);
+    parts.push('<h3>'+typeLabel(t)+'</h3>');
+    list.forEach(a=>{
+      parts.push('<span class="pill">'+a.name+(a.system?' <span class="tag">시스템</span>':'')+(a.system?'':' <button data-delacc="'+a.id+'">✕</button>')+'</span>');
+    });
+  });
+  parts.push('</div></div>');
+
+  parts.push('<div class="card"><h2>거래내용 자동추천 규칙</h2>');
+  parts.push('<div class="msg">거래내용(적요)에 아래 키워드가 포함되면 지정한 차변/대변 계정을 추천합니다.</div>');
+  parts.push('<div class="row">');
+  parts.push('<div class="field"><label>키워드(쉼표로 구분)</label><input type="text" id="newRuleKw" placeholder="예: 급여, 월급"></div>');
+  parts.push('<div class="field"><label>차변 계정</label><select id="newRuleDebit">'+accountOptions('',true)+'</select></div>');
+  parts.push('<div class="field"><label>대변 계정</label><select id="newRuleCredit">'+accountOptions('',true)+'</select></div>');
+  parts.push('<div class="field" style="flex:0 0 auto"><label>&nbsp;</label><button class="btn" id="addRuleBtn">규칙 추가</button></div>');
+  parts.push('</div>');
+  parts.push('<table style="margin-top:12px;"><tr><th class="left">키워드</th><th class="left">차변</th><th class="left">대변</th><th style="width:60px"></th></tr>');
+  state.rules.forEach((r,i)=>{
+    parts.push('<tr><td class="left">'+r.keywords.join(', ')+'</td><td class="left">'+r.debit+'</td><td class="left">'+r.credit+'</td><td class="center"><button class="btn danger sm" data-delrule="'+i+'">삭제</button></td></tr>');
+  });
+  parts.push('</table></div>');
+  return parts.join('');
+}
+
+/* =========================================================
+   7) 마감 탭
+========================================================= */
+let closingDateDraft = null;
+let closingEndInvDraft = '';
+function renderClosingTab(){
+  if(!closingDateDraft) closingDateDraft = lastEntryDate();
+  const parts = [];
+  parts.push('<div class="card"><h2>기간 마감</h2>');
+  parts.push('<div class="msg">"매입" 계정으로 분개된 상품·원재료 매입은 마감 시 재고실사법(3분법 표준 정리분개)으로 매출원가를 계산합니다:<br>① 기초상품재고액을 매입계정으로 대체 → ② 기말상품재고액을 매입계정에서 차감(자산 계상) → ③ 매입계정 최종잔액을 매출원가계정으로 대체<br>→ <b>매출원가 = 기초재고 + 당기매입 − 기말재고(실사액)</b><br>이후 수익·비용 계정(매출원가 포함)을 "집합손익"으로 대체하여 0으로 만들고, 그 결과(당기순이익 또는 손실)를 "이익잉여금"으로 대체하는 마감분개가 자동 생성됩니다. 마감된 거래는 이후 수정·삭제할 수 없습니다.</div>');
+  parts.push('<div class="row"><div class="field" style="max-width:220px"><label>마감일자</label><input type="date" id="closingDateInput" value="'+closingDateDraft+'"></div>');
+  parts.push('<div class="field" style="max-width:220px"><label>기말재고 실사액 (재고자산이 없으면 비워두세요)</label><input type="text" inputmode="numeric" id="closingEndInvInput" placeholder="예: 1,200,000" value="'+(closingEndInvDraft?Number(closingEndInvDraft).toLocaleString('ko-KR'):'')+'"></div>');
+  parts.push('<div class="field" style="flex:0 0 auto"><label>&nbsp;</label><button class="btn" id="previewClosingBtn">마감분개 미리보기</button></div></div>');
+  parts.push('<div id="closingPreview"></div>');
+  parts.push('</div>');
+
+  parts.push('<div class="card"><h2>마감 이력</h2>');
+  if(!state.closings.length) parts.push('<div class="empty">마감 이력이 없습니다.</div>');
+  else{
+    parts.push('<table><tr><th>마감일</th><th>매출원가</th><th>기말재고</th><th>당기순손익</th><th>실행시각</th></tr>');
+    state.closings.forEach(c=>{
+      parts.push('<tr><td class="center">'+c.date+'</td><td>'+(c.cogs!=null?fmt(c.cogs):'-')+'</td><td>'+(c.endingInventory!=null?fmt(c.endingInventory):'-')+'</td><td>'+(c.netIncome>=0?'이익 ':'손실 ')+fmt(Math.abs(c.netIncome))+'</td><td class="center">'+new Date(c.timestamp).toLocaleString('ko-KR')+'</td></tr>');
+    });
+    parts.push('</table>');
+  }
+  parts.push('</div>');
+  return parts.join('');
+}
+
+// 재고실사법 표준 3분법 정리분개
+// ① 기초상품재고액을 매입계정으로 대체  (차)매입 / (대)재고자산
+// ② 기말상품재고액을 매입계정에서 차감하여 자산으로 계상  (차)재고자산 / (대)매입
+// ③ 매입계정의 최종잔액(=매출원가)을 매출원가계정으로 대체  (차)매출원가 / (대)매입
+function computeInventoryAdjustment(closingDate, endingInventory){
+  const beginningInventory = accountBalance('재고자산', {toDate:closingDate});
+  const purchases = accountBalance('매입', {toDate:closingDate, onlyUnclosed:true, excludeClosing:true});
+  const endInv = Number(endingInventory)||0;
+  const cogs = beginningInventory + purchases - endInv;
+  const entries = []; // 각 항목이 분개장에서 별도의 한 줄(전표)로 표시됨
+  if(beginningInventory>0){
+    entries.push({desc:'① 기초상품재고액을 매입계정으로 대체', lines:[
+      {account:'매입', side:'debit', amount:beginningInventory},
+      {account:'재고자산', side:'credit', amount:beginningInventory}
+    ]});
+  }
+  if(endInv>0){
+    entries.push({desc:'② 기말상품재고액을 매입계정에서 차감(자산 계상)', lines:[
+      {account:'재고자산', side:'debit', amount:endInv},
+      {account:'매입', side:'credit', amount:endInv}
+    ]});
+  }
+  if(cogs>0){
+    entries.push({desc:'③ 매입계정 잔액을 매출원가계정으로 대체', lines:[
+      {account:'매출원가', side:'debit', amount:cogs},
+      {account:'매입', side:'credit', amount:cogs}
+    ]});
+  }else if(cogs<0){
+    // 기말재고가 기초재고+당기매입보다 큰 비정상 상황에 대한 안전장치(역분개)
+    entries.push({desc:'③ 매입계정 대변초과분을 매출원가에서 차감', lines:[
+      {account:'매입', side:'debit', amount:-cogs},
+      {account:'매출원가', side:'credit', amount:-cogs}
+    ]});
+  }
+  const lines = entries.reduce((acc,e)=>acc.concat(e.lines), []);
+  return {entries, lines, beginningInventory, purchases, endInv, cogs};
+}
+
+function computeClosingEntries(closingDate, endingInventory){
+  const inv = computeInventoryAdjustment(closingDate, endingInventory);
+  // 재고조정분개를 임시로 원장에 반영한 뒤 수익/비용 잔액을 계산하고 다시 제거한다 (미리보기 시 원장 오염 방지)
+  let tempEntry = null;
+  if(inv.lines.length){
+    tempEntry = {id:'__preview__', date:closingDate, desc:'매출원가 계산(재고실사법) 미리보기', lines:inv.lines, closed:false, closingEntry:false, inventoryEntry:true};
+    state.entries.push(tempEntry);
+  }
+
+  const revenueAccs = state.accounts.filter(a=>a.type==='revenue');
+  const expenseAccs = state.accounts.filter(a=>a.type==='expense' && a.name!=='매입');
+  const opts = {toDate:closingDate, onlyUnclosed:true, excludeClosing:true};
+  const entries = []; // 각 항목이 분개장에서 별도의 한 줄(전표)로 표시됨
+  let netIncome = 0;
+  revenueAccs.forEach(a=>{
+    const b = accountBalance(a.name, opts);
+    if(b>0){
+      entries.push({desc:'수익 마감: '+a.name+' → 집합손익', lines:[{account:a.name, side:'debit', amount:b},{account:'집합손익', side:'credit', amount:b}]});
+      netIncome+=b;
+    }
+  });
+  expenseAccs.forEach(a=>{
+    const b = accountBalance(a.name, opts);
+    if(b>0){
+      entries.push({desc:'비용 마감: '+a.name+' → 집합손익', lines:[{account:'집합손익', side:'debit', amount:b},{account:a.name, side:'credit', amount:b}]});
+      netIncome-=b;
+    }
+  });
+  if(netIncome>0){
+    entries.push({desc:'당기순이익 이익잉여금 대체', lines:[{account:'집합손익', side:'debit', amount:netIncome},{account:'이익잉여금', side:'credit', amount:netIncome}]});
+  }else if(netIncome<0){
+    entries.push({desc:'당기순손실 이익잉여금 대체', lines:[{account:'이익잉여금', side:'debit', amount:-netIncome},{account:'집합손익', side:'credit', amount:-netIncome}]});
+  }
+
+  if(tempEntry){ state.entries.pop(); }
+
+  return {entries, netIncome, inventory:inv};
+}
+
+/* =========================================================
+   탭별 이벤트 바인딩
+========================================================= */
+function bindTabEvents(){
+  if(activeTab==='entry') bindEntryTabEvents();
+  if(activeTab==='journal'){
+    document.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(confirm('이 거래를 삭제하시겠습니까?')){
+          state.entries = state.entries.filter(e=>e.id!==btn.dataset.del);
+          saveState(); render();
+        }
+      });
+    });
+  }
+  if(activeTab==='taccount'){
+    document.getElementById('tAccSel').addEventListener('change', e=>{ selectedTAccount = e.target.value || null; render(); });
+  }
+  if(activeTab==='pl'){
+    document.getElementById('plFrom').addEventListener('change', e=>{ plFrom=e.target.value; render(); });
+    document.getElementById('plTo').addEventListener('change', e=>{ plTo=e.target.value; render(); });
+  }
+  if(activeTab==='bs'){
+    document.getElementById('bsAsOf').addEventListener('change', e=>{ bsAsOf=e.target.value; render(); });
+  }
+  if(activeTab==='accounts'){
+    document.getElementById('addAccBtn').addEventListener('click', ()=>{
+      const name = document.getElementById('newAccName').value.trim();
+      const type = document.getElementById('newAccType').value;
+      if(!name){ alert('계정명을 입력하세요.'); return; }
+      if(accountByName(name)){ alert('이미 존재하는 계정과목입니다.'); return; }
+      state.accounts.push({id:nextId('u'), name, type});
+      saveState(); render();
+    });
+    document.querySelectorAll('[data-delacc]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const acc = state.accounts.find(a=>a.id===btn.dataset.delacc);
+        const used = state.entries.some(e=>e.lines.some(l=>l.account===acc.name));
+        if(used){ alert('이미 거래에 사용된 계정과목은 삭제할 수 없습니다.'); return; }
+        if(confirm(acc.name+' 계정을 삭제할까요?')){
+          state.accounts = state.accounts.filter(a=>a.id!==acc.id);
+          saveState(); render();
+        }
+      });
+    });
+    document.getElementById('addRuleBtn').addEventListener('click', ()=>{
+      const kwRaw = document.getElementById('newRuleKw').value.trim();
+      const debit = document.getElementById('newRuleDebit').value;
+      const credit = document.getElementById('newRuleCredit').value;
+      if(!kwRaw || !debit || !credit){ alert('키워드, 차변, 대변을 모두 입력하세요.'); return; }
+      const keywords = kwRaw.split(',').map(s=>s.trim()).filter(Boolean);
+      state.rules.push({keywords, debit, credit});
+      saveState(); render();
+    });
+    document.querySelectorAll('[data-delrule]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        state.rules.splice(Number(btn.dataset.delrule),1);
+        saveState(); render();
+      });
+    });
+  }
+  if(activeTab==='closing'){
+    document.getElementById('closingDateInput').addEventListener('change', e=>{ closingDateDraft = e.target.value; });
+    attachComma(document.getElementById('closingEndInvInput'));
+    document.getElementById('closingEndInvInput').addEventListener('input', e=>{ closingEndInvDraft = unformat(e.target.value); });
+    document.getElementById('previewClosingBtn').addEventListener('click', ()=>{
+      const date = document.getElementById('closingDateInput').value;
+      const endInv = unformat(document.getElementById('closingEndInvInput').value);
+      closingDateDraft = date;
+      closingEndInvDraft = endInv;
+      const {entries, netIncome, inventory} = computeClosingEntries(date, endInv);
+      const box = document.getElementById('closingPreview');
+      if(!entries.length && !inventory.entries.length){
+        box.innerHTML = '<div class="empty">마감할 미마감 수익·비용·매입 거래가 없습니다.</div>';
+        return;
+      }
+      const parts = [];
+      if(inventory.entries.length){
+        parts.push('<h3>① 매출원가 계산 (재고실사법 · 3분법 정리분개)</h3>');
+        parts.push('<table><tr><th class="left">항목</th><th>금액</th></tr>');
+        parts.push('<tr><td class="left">기초재고</td><td>'+fmt(inventory.beginningInventory)+'</td></tr>');
+        parts.push('<tr><td class="left">당기매입</td><td>'+fmt(inventory.purchases)+'</td></tr>');
+        parts.push('<tr><td class="left">기말재고(실사액)</td><td>'+fmt(inventory.endInv)+'</td></tr>');
+        parts.push('<tr class="grandTotal"><td class="left">매출원가 = 기초재고 + 당기매입 − 기말재고</td><td>'+fmt(inventory.cogs)+'</td></tr>');
+        parts.push('</table>');
+        parts.push('<table style="margin-top:8px;"><tr><th class="left">정리분개 단계</th><th class="left">분개</th><th>금액</th></tr>');
+        inventory.entries.forEach(e=>{
+          const {debitStr, creditStr, total} = formatEntryLine(e);
+          parts.push('<tr><td class="left">'+e.desc+'</td><td class="left">(차)'+debitStr+' / (대)'+creditStr+'</td><td>'+fmt(total)+'</td></tr>');
+        });
+        parts.push('</table>');
+      }
+      parts.push('<h3>'+(inventory.entries.length?'② ':'')+'수익·비용 마감분개 (집합손익 대체)</h3>');
+      if(!entries.length){ parts.push('<div class="empty">마감할 수익·비용 잔액이 없습니다.</div>'); }
+      else{
+        parts.push('<table><tr><th class="left">분개</th><th class="left">분개내용</th><th>금액</th></tr>');
+        entries.forEach(e=>{
+          const {debitStr, creditStr, total} = formatEntryLine(e);
+          parts.push('<tr><td class="left">(차)'+debitStr+' / (대)'+creditStr+'</td><td class="left">'+e.desc+'</td><td>'+fmt(total)+'</td></tr>');
+        });
+        parts.push('</table>');
+      }
+      parts.push('<div class="balanceCheck ok" style="margin-top:10px;">'+(netIncome>=0?'당기순이익 ':'당기순손실 ')+fmt(Math.abs(netIncome))+'원 → 이익잉여금으로 대체</div>');
+      parts.push('<button class="btn" id="runClosingBtn" style="margin-top:12px;">이 내용으로 마감 실행</button>');
+      box.innerHTML = parts.join('');
+      document.getElementById('runClosingBtn').addEventListener('click', ()=> executeClosing(date, endInv));
+    });
+  }
+}
+
+function executeClosing(closingDate, endingInventory){
+  if(!confirm(closingDate+'자로 마감을 실행하시겠습니까?\\n마감 이후 해당 기간 거래는 수정·삭제할 수 없습니다.')) return;
+  const {entries, netIncome, inventory} = computeClosingEntries(closingDate, endingInventory);
+  const closingId = nextId('c');
+  inventory.entries.forEach(e=>{
+    state.entries.push({
+      id: nextId('e'),
+      date: closingDate,
+      desc: e.desc,
+      lines: e.lines,
+      closed: true,
+      closingEntry: false,
+      inventoryEntry: true,
+      closingId: closingId
+    });
+  });
+  entries.forEach(e=>{
+    state.entries.push({
+      id: nextId('e'),
+      date: closingDate,
+      desc: e.desc,
+      lines: e.lines,
+      closed: true,
+      closingEntry: true,
+      closingId: closingId
+    });
+  });
+  state.entries.forEach(e=>{
+    if(!e.closingEntry && e.id!=='__preview__' && e.date<=closingDate) e.closed = true;
+  });
+  state.closings.push({id:closingId, date:closingDate, netIncome, cogs:inventory.cogs, endingInventory:inventory.endInv, timestamp:Date.now()});
+  saveState();
+  closingDateDraft = null;
+  closingEndInvDraft = '';
+  alert('마감이 완료되었습니다.');
+  activeTab='bs'; bsAsOf=closingDate;
+  render();
+}
+
+/* =========================================================
+   JSON 내보내기 / 불러오기 / 초기화
+========================================================= */
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '복식부기장부_'+todayStr()+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function importJSON(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.accounts || !data.entries) throw new Error('형식 오류');
+      if(!confirm('현재 데이터를 불러온 파일로 덮어쓰시겠습니까?')) return;
+      state = data;
+      if(!state.rules) state.rules = JSON.parse(JSON.stringify(DEFAULT_RULES));
+      if(!state.closings) state.closings = [];
+      if(!state.seq) state.seq = 1;
+      saveState();
+      render();
+    }catch(err){ alert('올바른 백업 파일이 아닙니다.'); }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+function resetAll(){
+  if(!confirm('모든 데이터를 초기화합니다. 계속하시겠습니까? (JSON 내보내기로 미리 백업하는 것을 권장합니다)')) return;
+  state = defaultState();
+  saveState();
+  render();
+}
+
+/* =========================================================
+   보안 유틸 (HTML escape)
+========================================================= */
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+
+/* =========================================================
+   초기화
+========================================================= */
+loadState();
+render();
+</script>
+</body>
+</html>

@@ -540,9 +540,19 @@ footer::before{
 <!-- ===== 블로그 ===== -->
 <section style="background:var(--bg);border-top:1px solid var(--line);padding:60px 32px">
   <div class="section-inner">
-    <div class="section-eyebrow">블로그</div>
-    <div class="section-title">최근 게시글</div>
-    <div class="section-desc">세무 실무에 바로 쓸 수 있는 정보를 공유합니다.</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div class="section-eyebrow">블로그</div>
+        <div class="section-title" style="margin-bottom:4px">최근 게시글</div>
+        <div class="section-desc">세무 실무에 바로 쓸 수 있는 정보를 공유합니다.</div>
+      </div>
+      <a href="https://blog.naver.com/jrleetaxdr" target="_blank"
+         style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);font-weight:600;padding:10px 20px;border:1px solid var(--accent);border-radius:8px;transition:all 0.15s;white-space:nowrap;flex-shrink:0;"
+         onmouseover="this.style.background='var(--accent-lt)'"
+         onmouseout="this.style.background='transparent'">
+        블로그 전체글 보기 →
+      </a>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <a href="https://blog.naver.com/PostView.naver?blogId=jrleetaxdr&logNo=224395351617&categoryNo=18&parentCategoryNo=&from=thumbnailList" target="_blank"
          style="background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:block;transition:all 0.15s;text-decoration:none"
@@ -563,14 +573,21 @@ footer::before{
         <span style="font-size:12px;color:var(--accent);font-weight:600">자세히 보기 →</span>
       </a>
     </div>
-    <div style="text-align:center;margin-top:20px">
-      <a href="https://blog.naver.com/jrleetaxdr" target="_blank"
-         style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);font-weight:600;padding:10px 20px;border:1px solid var(--accent);border-radius:8px;transition:all 0.15s"
-         onmouseover="this.style.background='var(--accent-lt)'"
-         onmouseout="this.style.background='transparent'">
-        블로그 전체글 보기 →
-      </a>
-    </div>
+    <!-- 고정 배너: 분개연습 -->
+    <a href="복식부기_분개연습.html" target="_blank"
+       style="display:flex;align-items:center;gap:20px;background:#fff;
+              border:2px solid var(--accent);border-radius:12px;padding:20px 28px;margin-top:16px;text-decoration:none;
+              transition:all 0.15s;"
+       onmouseover="this.style.background='var(--accent-lt)'"
+       onmouseout="this.style.background='#fff'">
+      <div style="font-size:36px;flex-shrink:0;">📒</div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.8px;margin-bottom:6px">회계 학습 · 블로그 회계 카테고리</div>
+        <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:4px">복식부기 분개연습 해보세요! 📝</div>
+        <div style="font-size:12px;color:var(--muted);">거래 입력 → 분개 → 손익계산서·재무상태표 자동 생성 · 회계 기초를 실습으로 익혀보세요</div>
+      </div>
+      <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0;">블로그 회계 바로가기 →</div>
+    </a>
   </div>
 </section>
 
