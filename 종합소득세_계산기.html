@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>종합소득세 계산기</title>
+<style>
+  :root{
+    --navy:#1c3552;
+    --navy-dark:#12233a;
+    --teal:#2f6f6a;
+    --gold:#b8892f;
+    --bg:#f5f6f8;
+    --card:#ffffff;
+    --line:#e1e4e9;
+    --text:#1e232b;
+    --text-sub:#5c6472;
+    --red:#b23b3b;
+    --blue-bg:#eef3f8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Malgun Gothic","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 20px 80px;}
+
+  header.app-header{
+    background:var(--navy);
+    color:#fff;
+    padding:22px 0;
+    margin-bottom:22px;
+  }
+  header.app-header .wrap{padding-top:0;padding-bottom:0;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  header.app-header h1{font-size:20px;margin:0;font-weight:700;letter-spacing:-0.2px;}
+  header.app-header .sub{font-size:12.5px;color:#c9d4e0;margin-top:4px;}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .toolbar button{
+    background:#fff;border:1px solid var(--line);color:var(--navy);
+    padding:7px 13px;border-radius:6px;font-size:12.5px;cursor:pointer;font-weight:600;
+  }
+  .toolbar button:hover{background:var(--blue-bg);}
+  .toolbar button.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .toolbar button.primary:hover{background:var(--navy-dark);}
+  .toolbar .status{font-size:12px;color:var(--text-sub);align-self:center;margin-left:4px;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px 22px;
+    margin-bottom:18px;
+  }
+  .card h2{font-size:15px;margin:0 0 14px;color:var(--navy);border-bottom:2px solid var(--navy);padding-bottom:8px;}
+  .card h3{font-size:13.5px;margin:18px 0 10px;color:var(--teal);}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px;}
+  @media (max-width:640px){.grid{grid-template-columns:1fr;}}
+
+  .field label{display:block;font-size:12.5px;color:var(--text-sub);margin-bottom:4px;font-weight:600;}
+  .field .hint{font-size:11px;color:#9aa2ad;margin-top:3px;}
+  .num-input{
+    width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:5px;
+    font-size:14px;text-align:right;font-variant-numeric:tabular-nums;background:#fff;
+  }
+  .num-input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 2px rgba(47,111,106,0.15);}
+  .won{position:relative;}
+  .won::after{content:"원";position:absolute;right:10px;top:8px;font-size:11px;color:#b6bcc6;pointer-events:none;}
+  .won input{padding-right:26px;}
+
+  .tabs{display:flex;gap:4px;margin-bottom:0;border-bottom:2px solid var(--line);}
+  .tab-btn{
+    padding:11px 18px;background:none;border:none;font-size:13.5px;font-weight:700;color:var(--text-sub);
+    cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;
+  }
+  .tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  table.flow{width:100%;border-collapse:collapse;font-size:13.5px;}
+  table.flow tbody tr{border-bottom:1px solid var(--line);}
+  table.flow tbody tr:last-child{border-bottom:none;}
+  table.flow td{padding:9px 6px;}
+  table.flow td.label{color:var(--text-sub);width:46%;}
+  table.flow td.op{width:6%;text-align:center;color:#bcc3cd;font-weight:700;}
+  table.flow td.val{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;width:48%;}
+  table.flow tr.subtotal td{background:var(--blue-bg);font-weight:700;}
+  table.flow tr.final td{background:var(--navy);color:#fff;font-weight:800;font-size:15px;border-radius:6px;}
+  table.flow tr.final td.label{color:#dbe4ee;}
+  table.flow tr.neg td.val{color:var(--red);}
+
+  .badge{display:inline-block;font-size:11px;background:var(--blue-bg);color:var(--teal);padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px;}
+
+  .msg-box{padding:12px 14px;border-radius:6px;font-size:13px;margin-top:14px;line-height:1.6;}
+  .msg-box.ok{background:#eaf5ee;color:#2a6b3f;border:1px solid #cbe6d3;}
+  .msg-box.warn{background:#fdf3e6;color:#8a5a12;border:1px solid #f3ddb3;}
+  .msg-box.info{background:var(--blue-bg);color:var(--navy);border:1px solid #cfe0ef;}
+
+  .radio-row{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
+  .radio-row label{font-size:13px;display:flex;align-items:center;gap:5px;font-weight:600;color:var(--text);cursor:pointer;}
+
+  .slider-row{display:flex;align-items:center;gap:12px;margin:12px 0 18px;}
+  .slider-row input[type=range]{flex:1;accent-color:var(--teal);}
+  .slider-val{min-width:130px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:var(--navy);}
+
+  table.scenario{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+  table.scenario th{background:var(--navy);color:#fff;padding:8px 6px;font-weight:700;}
+  table.scenario td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;}
+  table.scenario td:first-child, table.scenario th:first-child{text-align:left;}
+  table.scenario tr.current td{background:#fff8e6;font-weight:700;}
+
+  .bars{display:flex;align-items:flex-end;gap:10px;height:150px;margin-top:16px;border-bottom:1px solid var(--line);padding-bottom:2px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+  .bar{width:70%;background:var(--teal);border-radius:3px 3px 0 0;transition:height .2s;}
+  .bar-col.current .bar{background:var(--gold);}
+  .bar-label{font-size:10.5px;color:var(--text-sub);margin-top:6px;text-align:center;}
+  .bar-value{font-size:10.5px;color:var(--text);font-weight:700;margin-bottom:2px;}
+
+  details.ratebox{margin-top:8px;}
+  details.ratebox summary{cursor:pointer;font-size:12.5px;color:var(--teal);font-weight:700;}
+  table.ratetable{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+  table.ratetable th{background:var(--blue-bg);padding:6px;color:var(--navy);}
+  table.ratetable td{padding:5px 6px;border-bottom:1px solid var(--line);}
+  table.ratetable td input{width:100%;padding:4px 6px;font-size:12px;text-align:right;border:1px solid var(--line);border-radius:4px;}
+
+  footer{text-align:center;font-size:11.5px;color:#9aa2ad;margin-top:24px;}
+
+  @media print{
+    .toolbar, .tabs, .no-print{display:none !important;}
+    .tab-panel{display:block !important;}
+    .card{border:none;box-shadow:none;break-inside:avoid;}
+    body{background:#fff;}
+  }
+
+  .print-footer{display:none;}
+  @media print{
+    .print-footer{display:block !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="wrap">
+    <div>
+      <h1>종합소득세 계산기</h1>
+      <div class="sub">매출·비용 흐름 계산 · 목표세액 역산 · 재고자산 영향 시뮬레이션 · 경비율 추계 비교</div>
+    </div>
+    <div style="font-size:11.5px;color:#c9d4e0;">세무사무소 실무 참고용</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toolbar no-print">
+    <button onclick="window.print()">인쇄 / PDF</button>
+    <button onclick="resetAll()">초기화</button>
+    <span class="status" id="saveStatus"></span>
+  </div>
+
+  <div class="card">
+    <h2>① 기초 입력</h2>
+    <div class="grid">
+      <div class="field">
+        <label>매출액(수입금액)</label>
+        <div class="won"><input type="text" class="num-input" id="revenue" value="300,000,000"></div>
+      </div>
+      <div class="field">
+        <label>기타 필요경비 합계 <span class="hint">(인건비·임차료·기타경비 등, 재고자산 제외)</span></label>
+        <div class="won"><input type="text" class="num-input" id="otherExpense" value="90,000,000"></div>
+      </div>
+
+      <div class="field">
+        <label>기초재고액</label>
+        <div class="won"><input type="text" class="num-input" id="beginInv" value="20,000,000"></div>
+      </div>
+      <div class="field">
+        <label>당기 매입액</label>
+        <div class="won"><input type="text" class="num-input" id="purchase" value="130,000,000"></div>
+      </div>
+      <div class="field">
+        <label>기말재고액</label>
+        <div class="won"><input type="text" class="num-input" id="endInv" value="25,000,000"></div>
+      </div>
+      <div class="field">
+        <label>매출원가 <span class="hint">(자동계산 = 기초재고+매입-기말재고)</span></label>
+        <div class="won"><input type="text" class="num-input" id="cogsDisplay" value="" readonly style="background:#f2f4f7;"></div>
+      </div>
+
+      <div class="field">
+        <label>소득공제 합계 <span class="hint">(인적공제·국민연금 등)</span></label>
+        <div class="won"><input type="text" class="num-input" id="deduction" value="6,000,000"></div>
+      </div>
+      <div class="field">
+        <label>세액공제·감면 합계</label>
+        <div class="won"><input type="text" class="num-input" id="taxCredit" value="0"></div>
+      </div>
+      <div class="field">
+        <label>기납부세액 합계 <span class="hint">(중간예납·원천징수 등)</span></label>
+        <div class="won"><input type="text" class="num-input" id="prepaid" value="0"></div>
+      </div>
+    </div>
+
+    <details class="ratebox">
+      <summary>종합소득세 세율표 보기/수정 (현행 8단계 누진세율)</summary>
+      <table class="ratetable">
+        <thead><tr><th>과표 구간(초과~이하)</th><th>세율(%)</th><th>누진공제액</th></tr></thead>
+        <tbody id="rateTableBody"></tbody>
+      </table>
+      <div class="hint" style="margin-top:6px;">세법 개정 시 위 표를 직접 수정하면 전체 계산에 즉시 반영됩니다. 반영 전 담당 세무사 확인이 필요합니다.</div>
+    </details>
+  </div>
+
+  <div class="tabs no-print">
+    <button class="tab-btn active" data-tab="t1">① 세액 계산</button>
+    <button class="tab-btn" data-tab="t2">② 목표세액 역산</button>
+    <button class="tab-btn" data-tab="t3">③ 재고자산 시뮬레이션</button>
+    <button class="tab-btn" data-tab="t4">④ 경비율(추계) 비교</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="tab-panel active" id="t1">
+    <div class="card">
+      <h2>세액 계산 흐름</h2>
+      <table class="flow" id="flowTable"></table>
+      <div class="msg-box info" id="t1msg"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div class="tab-panel" id="t2">
+    <div class="card">
+      <h2>목표납부세액 역산</h2>
+      <div class="radio-row">
+        <label><input type="radio" name="goalType" value="determined" checked> 목표를 결정세액(산출세액-세액공제감면) 기준으로 입력</label>
+        <label><input type="radio" name="goalType" value="final"> 목표를 최종 납부세액(지방소득세 포함) 기준으로 입력</label>
+      </div>
+      <div class="field" style="max-width:320px;">
+        <label>목표 세액</label>
+        <div class="won"><input type="text" class="num-input" id="goalAmount" value="20,000,000"></div>
+      </div>
+      <button class="primary no-print" style="margin-top:6px;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;" onclick="calcGoal()">역산하기</button>
+
+      <h3>역산 결과</h3>
+      <table class="flow" id="goalTable"></table>
+      <div class="msg-box" id="goalMsg"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3 -->
+  <div class="tab-panel" id="t3">
+    <div class="card">
+      <h2>기말재고액 변화에 따른 세액 시뮬레이션</h2>
+      <div class="hint">기말재고가 늘어나면 매출원가가 줄어 소득금액(과표)이 커지고, 기말재고가 줄면 매출원가가 늘어 소득금액이 작아집니다.</div>
+      <div class="slider-row">
+        <input type="range" id="invSlider" min="0" max="200" value="100" oninput="onInvSlider()">
+        <div class="slider-val" id="invSliderVal"></div>
+      </div>
+      <table class="flow" id="invFlowTable"></table>
+
+      <h3>시나리오 비교</h3>
+      <table class="scenario" id="scenarioTable"></table>
+
+      <h3>과세표준 대비 그래프</h3>
+      <div class="bars" id="barsChart"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4 -->
+  <div class="tab-panel" id="t4">
+    <div class="card">
+      <h2>기준경비율·단순경비율 추계 비교</h2>
+      <div class="hint">수입금액(매출액)은 상단 ① 기초 입력의 값을 그대로 사용합니다. 소득공제·세액공제·기납부세액도 상단 값을 공통 적용합니다.</div>
+
+      <h3>단순경비율</h3>
+      <div class="grid">
+        <div class="field">
+          <label>단순경비율(%) <span class="hint">국세청 업종별 경비율 고시 참고</span></label>
+          <input type="text" class="num-input" id="simpleRate" value="60.0">
+        </div>
+      </div>
+
+      <h3>기준경비율 · 주요경비</h3>
+      <div class="grid">
+        <div class="field">
+          <label>기준경비율(%)</label>
+          <input type="text" class="num-input" id="stdRate" value="20.0">
+        </div>
+        <div class="field">
+          <label>매입비용</label>
+          <div class="won"><input type="text" class="num-input" id="mainPurchase" value="100,000,000"></div>
+        </div>
+        <div class="field">
+          <label>사업용고정자산 임차료</label>
+          <div class="won"><input type="text" class="num-input" id="mainRent" value="12,000,000"></div>
+        </div>
+        <div class="field">
+          <label>종업원 급여·임금</label>
+          <div class="won"><input type="text" class="num-input" id="mainLabor" value="30,000,000"></div>
+        </div>
+        <div class="field">
+          <label>주요경비 합계 <span class="hint">(자동계산)</span></label>
+          <div class="won"><input type="text" class="num-input" id="mainExpenseSum" value="" readonly style="background:#f2f4f7;"></div>
+        </div>
+      </div>
+
+      <div class="radio-row" style="margin-top:4px;">
+        <label><input type="radio" name="ledgerType" value="simple" checked> 간편장부대상자 (배율 2.8배)</label>
+        <label><input type="radio" name="ledgerType" value="double"> 복식부기의무자 (배율 3.4배)</label>
+      </div>
+      <div class="field" style="max-width:240px;">
+        <label>배율 <span class="hint">(매년 국세청 고시로 변경될 수 있어 직접 수정 가능)</span></label>
+        <input type="text" class="num-input" id="multiplier" value="2.8">
+      </div>
+
+      <h3>방법별 비교 (필요경비·세액)</h3>
+      <table class="scenario" id="expenseRateTable"></table>
+
+      <h3>기준경비율 소득금액 산출 근거</h3>
+      <table class="flow" id="stdRateDetailTable"></table>
+
+      <div class="msg-box warn">단순경비율·기준경비율 중 어느 방식을 적용할 수 있는지는 업종별 직전연도 수입금액 기준(법정 기준수입금액)에 따라 결정되며, 배율(2.8배/3.4배)도 매년 국세청 고시로 변경될 수 있습니다. 실제 신고 전 대상 여부와 최신 고시 배율을 반드시 확인하시기 바랍니다.</div>
+      <div class="msg-box" id="t4msg"></div>
+    </div>
+
+    <div class="card">
+      <h2>장부기장 vs 경비율(추계) 전환 판단</h2>
+      <div class="hint">기장의무자(간편장부대상자·복식부기의무자)가 장부 없이 경비율로 신고하면 무기장가산세(산출세액×20%)가 추가로 부과됩니다. 이를 반영해 어느 방법이 실제로 유리한지, 장부기장으로 전환하려면 비용을 얼마나 더 확보해야 하는지 계산합니다.</div>
+
+      <div class="radio-row">
+        <label><input type="radio" name="convBasis" value="simple" checked> 단순경비율 기준으로 비교</label>
+        <label><input type="radio" name="convBasis" value="std"> 기준경비율 기준으로 비교</label>
+      </div>
+      <div class="radio-row">
+        <label><input type="checkbox" id="applyPenalty" checked> 경비율(추계) 신고 시 무기장가산세(산출세액×20%) 적용 대상임</label>
+      </div>
+
+      <table class="flow" id="convCompareTable"></table>
+      <div class="msg-box" id="convMsg"></div>
+
+      <h3>장부기장 전환 시 필요한 추가 비용</h3>
+      <table class="flow" id="convGoalTable"></table>
+      <div class="msg-box" id="convGoalMsg"></div>
+    </div>
+  </div>
+
+  
+<div style="max-width:700px;margin:32px auto 0;text-align:center;padding:0 20px;">
+  <p style="font-size:13px;color:#888;margin-bottom:14px;">
+    ※ 본 계산기는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.
+  </p>
+  <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank"
+     style="display:inline-block;background:#FEE500;color:#3A1D1D;font-weight:700;
+            font-size:16px;padding:14px 48px;border-radius:12px;text-decoration:none;
+            box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+    💬 세무사에게 정확한 상담 받기
+  </a>
+</div>
+<footer>본 계산기는 실무 참고용 도구이며, 실제 신고 및 고객 안내는 담당 세무사의 검토를 거쳐야 합니다.</footer>
+</div>
+
+<script>
+/* ---------------- 세율표 (2023년 개정 현행 8단계, 수정 가능) ---------------- */
+let brackets = [
+  {upTo:14000000,    rate:6,  ded:0},
+  {upTo:50000000,    rate:15, ded:1260000},
+  {upTo:88000000,    rate:24, ded:5760000},
+  {upTo:150000000,   rate:35, ded:15440000},
+  {upTo:300000000,   rate:38, ded:19940000},
+  {upTo:500000000,   rate:40, ded:25940000},
+  {upTo:1000000000,  rate:42, ded:35940000},
+  {upTo:null,        rate:45, ded:65940000}
+];
+
+function fmt(n){
+  n = Math.round(n||0);
+  const neg = n<0; n=Math.abs(n);
+  const s = n.toLocaleString('ko-KR');
+  return (neg?'-':'')+s;
+}
+function unfmt(str){
+  if(typeof str!=='string') return Number(str)||0;
+  const v = parseFloat(str.replace(/[^0-9.\-]/g,''));
+  return isNaN(v)?0:v;
+}
+function getVal(id){ return unfmt(document.getElementById(id).value); }
+
+/* comma-format-as-typed inputs */
+function attachCommaInputs(){
+  document.querySelectorAll('.num-input:not([readonly])').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const pos = inp.selectionStart;
+      const before = inp.value.length;
+      let raw = inp.value.replace(/[^0-9.\-]/g,'');
+      if(raw===''){ inp.value=''; return; }
+      const num = parseFloat(raw);
+      inp.value = isNaN(num)?'':num.toLocaleString('ko-KR');
+      const after = inp.value.length;
+      const newPos = Math.max(0,pos+(after-before));
+      try{ inp.setSelectionRange(newPos,newPos); }catch(e){}
+      recalcAll();
+    });
+  });
+}
+
+function calcTaxFromBase(base){
+  if(base<=0) return 0;
+  for(const b of brackets){
+    if(b.upTo===null || base<=b.upTo){
+      return Math.max(0, base*(b.rate/100) - b.ded);
+    }
+  }
+  return 0;
+}
+
+/* find 과표 needed to reach a target 산출세액 */
+function findBaseForTax(targetTax){
+  if(targetTax<=0) return 0;
+  let lower = 0;
+  for(const b of brackets){
+    const upperBase = b.upTo;
+    const upperTax = upperBase===null? Infinity : calcTaxFromBase(upperBase);
+    if(targetTax<=upperTax+0.0001){
+      const base = (targetTax + b.ded) / (b.rate/100);
+      return Math.max(base, lower);
+    }
+    lower = upperBase;
+  }
+  return 0;
+}
+
+/* ---------------- render rate table (editable) ---------------- */
+function renderRateTable(){
+  const tbody = document.getElementById('rateTableBody');
+  tbody.innerHTML='';
+  let prev = 0;
+  brackets.forEach((b,i)=>{
+    const tr = document.createElement('tr');
+    const rangeLabel = b.upTo===null ? (fmt(prev)+'원 초과') : (fmt(prev)+'원 초과 ~ '+fmt(b.upTo)+'원 이하');
+    tr.innerHTML = `<td>${rangeLabel}</td>
+      <td><input type="text" value="${b.rate}" data-idx="${i}" data-field="rate" style="width:60px;"></td>
+      <td><input type="text" value="${fmt(b.ded)}" data-idx="${i}" data-field="ded"></td>`;
+    tbody.appendChild(tr);
+    prev = b.upTo;
+  });
+  tbody.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const idx = +inp.dataset.idx, field = inp.dataset.field;
+      const v = unfmt(inp.value);
+      brackets[idx][field] = v;
+      recalcAll();
+    });
+  });
+}
+
+/* ---------------- core computation ---------------- */
+function computeCore(overrides){
+  overrides = overrides||{};
+  const revenue = overrides.revenue ?? getVal('revenue');
+  const otherExpense = overrides.otherExpense ?? getVal('otherExpense');
+  const beginInv = overrides.beginInv ?? getVal('beginInv');
+  const purchase = overrides.purchase ?? getVal('purchase');
+  const endInv = overrides.endInv ?? getVal('endInv');
+  const deduction = overrides.deduction ?? getVal('deduction');
+  const taxCredit = overrides.taxCredit ?? getVal('taxCredit');
+  const prepaid = overrides.prepaid ?? getVal('prepaid');
+
+  const cogs = beginInv + purchase - endInv;
+  const totalExpense = cogs + otherExpense;
+  const income = revenue - totalExpense;
+  const base = Math.max(0, income - deduction);
+  const calcTax = calcTaxFromBase(base);
+  const determined = Math.max(0, calcTax - taxCredit);
+  const payable = determined - prepaid;
+  const localTax = Math.round(determined*0.1);
+  const finalTotal = payable + localTax;
+
+  return {revenue,otherExpense,beginInv,purchase,endInv,cogs,totalExpense,income,deduction,base,calcTax,taxCredit,determined,prepaid,payable,localTax,finalTotal};
+}
+
+/* build the same 소득금액→세액 체인 from an arbitrary income figure (used for 추계 비교) */
+function computeTaxChain(income, deduction, taxCredit, prepaid){
+  const base = Math.max(0, income - deduction);
+  const calcTax = calcTaxFromBase(base);
+  const determined = Math.max(0, calcTax - taxCredit);
+  const payable = determined - prepaid;
+  const localTax = Math.round(determined*0.1);
+  const finalTotal = payable + localTax;
+  return {income,deduction,base,calcTax,taxCredit,determined,prepaid,payable,localTax,finalTotal};
+}
+
+/* ---------------- Tab 1 render ---------------- */
+function renderFlow(tableId, r){
+  const rows = [
+    ['매출액(수입금액)', fmt(r.revenue), false, false],
+    ['− 매출원가(기초재고+매입-기말재고)', fmt(r.cogs), true, false],
+    ['− 기타 필요경비', fmt(r.otherExpense), true, false],
+    ['= 소득금액(사업소득금액)', fmt(r.income), false, true],
+    ['− 소득공제', fmt(r.deduction), true, false],
+    ['= 과세표준', fmt(r.base), false, true],
+    ['× 세율 적용 → 산출세액', fmt(r.calcTax), false, true],
+    ['− 세액공제·감면', fmt(r.taxCredit), true, false],
+    ['= 결정세액', fmt(r.determined), false, true],
+    ['− 기납부세액', fmt(r.prepaid), true, false],
+    ['= 종합소득세 납부(환급)세액', fmt(r.payable), false, true],
+    ['+ 지방소득세(결정세액의 10%)', fmt(r.localTax), false, false],
+    ['최종 총 납부(환급)세액', fmt(r.finalTotal), false, 'final'],
+  ];
+  const tbl = document.getElementById(tableId);
+  tbl.innerHTML = '<tbody>'+rows.map(row=>{
+    const [label,val,isMinus,style] = row;
+    let cls='';
+    if(style==='final') cls='final';
+    else if(style) cls='subtotal';
+    const negCls = (isMinus && Number(val.replace(/,/g,''))<0) ? 'neg':'';
+    return `<tr class="${cls} ${negCls}"><td class="label">${label}</td><td class="op">${isMinus?'':''}</td><td class="val">${val}원</td></tr>`;
+  }).join('')+'</tbody>';
+}
+
+function renderT1(){
+  const r = computeCore();
+  renderFlow('flowTable', r);
+  document.getElementById('cogsDisplay').value = fmt(r.cogs);
+  const msg = document.getElementById('t1msg');
+  const rate = r.base>0 ? (calcMarginalRate(r.base)) : 0;
+  msg.innerHTML = `현재 과세표준 <b>${fmt(r.base)}원</b> 구간의 한계세율은 <b>${rate}%</b>입니다. 추가 소득(과표) 1원 증가 시 그 세율만큼 세부담이 늘어납니다.`;
+}
+function calcMarginalRate(base){
+  for(const b of brackets){
+    if(b.upTo===null || base<=b.upTo) return b.rate;
+  }
+  return brackets[brackets.length-1].rate;
+}
+
+/* ---------------- Tab 2: goal reverse calc ---------------- */
+function calcGoal(){
+  const r = computeCore();
+  const goalType = document.querySelector('input[name=goalType]:checked').value;
+  const goalAmount = getVal('goalAmount');
+
+  // convert goal to 결정세액(target determined tax) basis
+  let targetDetermined;
+  if(goalType==='determined'){
+    targetDetermined = goalAmount;
+  } else {
+    // final(payable+localTax) = (calcTax - taxCredit - prepaid) + round((calcTax-taxCredit)*0.1)
+    // approx: determined*1.1 - prepaid = final  =>  determined = (final+prepaid)/1.1
+    targetDetermined = (goalAmount + r.prepaid) / 1.1;
+  }
+  const targetCalcTax = Math.max(0, targetDetermined + r.taxCredit);
+  const targetBase = findBaseForTax(targetCalcTax);
+  const targetIncome = targetBase + r.deduction;
+  const targetTotalExpense = r.revenue - targetIncome;
+  const additionalExpenseNeeded = targetTotalExpense - r.totalExpense;
+
+  const rows = [
+    ['목표 결정세액(환산)', fmt(targetDetermined), false, false],
+    ['필요 산출세액', fmt(targetCalcTax), false, false],
+    ['필요 과세표준', fmt(targetBase), false, true],
+    ['+ 소득공제(현재값 유지)', fmt(r.deduction), false, false],
+    ['= 필요 소득금액', fmt(targetIncome), false, true],
+    ['매출액(현재값 유지)', fmt(r.revenue), false, false],
+    ['= 필요 필요경비(매출원가+기타경비) 합계', fmt(targetTotalExpense), false, true],
+    ['현재 필요경비 합계', fmt(r.totalExpense), false, false],
+    ['추가로 더 필요한 비용', fmt(additionalExpenseNeeded), false, 'final'],
+  ];
+  const tbl = document.getElementById('goalTable');
+  tbl.innerHTML = '<tbody>'+rows.map(row=>{
+    const [label,val,isMinus,style]=row;
+    let cls = style==='final'?'final':(style?'subtotal':'');
+    return `<tr class="${cls}"><td class="label">${label}</td><td class="op"></td><td class="val">${val}원</td></tr>`;
+  }).join('')+'</tbody>';
+
+  const msgEl = document.getElementById('goalMsg');
+  if(additionalExpenseNeeded>0){
+    msgEl.className='msg-box warn';
+    msgEl.innerHTML = `목표세액 달성을 위해서는 현재보다 비용을 <b>약 ${fmt(additionalExpenseNeeded)}원</b> 더 인정받아야 합니다. (매출원가·기타경비 중 어느 항목을 늘릴지는 실제 증빙 확보 가능 여부에 따라 담당 세무사와 협의가 필요합니다.)`;
+  } else if(additionalExpenseNeeded<0){
+    msgEl.className='msg-box ok';
+    msgEl.innerHTML = `현재 비용 수준으로도 목표세액보다 세부담이 낮습니다. 오히려 <b>약 ${fmt(-additionalExpenseNeeded)}원</b>의 여유가 있는 상태입니다.`;
+  } else {
+    msgEl.className='msg-box info';
+    msgEl.innerHTML = `현재 비용 수준이 목표세액과 정확히 일치합니다.`;
+  }
+}
+
+/* ---------------- Tab 3: inventory simulation ---------------- */
+function onInvSlider(){
+  const pct = +document.getElementById('invSlider').value;
+  document.getElementById('invSliderVal').textContent = pct+'%  (기말재고 '+fmt(getVal('endInv')*pct/100)+'원)';
+  renderT3();
+}
+
+function renderT3(){
+  const baseEndInv = getVal('endInv');
+  const pct = +document.getElementById('invSlider').value;
+  const simEndInv = baseEndInv * pct/100;
+  const r = computeCore({endInv: simEndInv});
+  renderFlow('invFlowTable', r);
+
+  // scenario table
+  const scenarios = [0, 0.5, 0.8, 1.0, 1.2, 1.5, 2.0].map(m=>{
+    const v = baseEndInv*m;
+    const rr = computeCore({endInv:v});
+    return {label: m===1.0? '현재값(100%)' : (m*100)+'%', v, rr, isCurrent: m===1.0};
+  });
+  const tbl = document.getElementById('scenarioTable');
+  tbl.innerHTML = `<thead><tr><th>기말재고</th><th>기말재고액</th><th>매출원가</th><th>소득금액</th><th>과세표준</th><th>산출세액</th><th>최종납부세액</th></tr></thead>
+    <tbody>${scenarios.map(s=>`<tr class="${s.isCurrent?'current':''}">
+      <td>${s.label}</td><td>${fmt(s.v)}</td><td>${fmt(s.rr.cogs)}</td><td>${fmt(s.rr.income)}</td><td>${fmt(s.rr.base)}</td><td>${fmt(s.rr.calcTax)}</td><td>${fmt(s.rr.finalTotal)}</td>
+    </tr>`).join('')}</tbody>`;
+
+  // bar chart on 산출세액 across scenarios
+  const bars = document.getElementById('barsChart');
+  const maxTax = Math.max(...scenarios.map(s=>s.rr.calcTax), 1);
+  bars.innerHTML = scenarios.map(s=>{
+    const h = Math.max(3, Math.round(s.rr.calcTax/maxTax*120));
+    return `<div class="bar-col ${s.isCurrent?'current':''}">
+      <div class="bar-value">${fmt(s.rr.calcTax)}</div>
+      <div class="bar" style="height:${h}px;"></div>
+      <div class="bar-label">${s.label}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------------- Tab 4: 기준/단순 경비율 추계 비교 ---------------- */
+document.querySelectorAll('input[name=ledgerType]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    document.getElementById('multiplier').value = r.value==='simple' ? '2.8' : '3.4';
+    recalcAll();
+  });
+});
+
+function computeExpenseRateChains(){
+  const rBook = computeCore();
+  const revenue = rBook.revenue;
+  const deduction = rBook.deduction, taxCredit = rBook.taxCredit, prepaid = rBook.prepaid;
+
+  const simpleRatePct = getVal('simpleRate');
+  const stdRatePct = getVal('stdRate');
+  const mainPurchase = getVal('mainPurchase');
+  const mainRent = getVal('mainRent');
+  const mainLabor = getVal('mainLabor');
+  const mainExpenseSum = mainPurchase + mainRent + mainLabor;
+  const multiplier = getVal('multiplier');
+
+  const simpleIncomeRaw = revenue - revenue*(simpleRatePct/100);
+  const incomeSimple = Math.max(0, simpleIncomeRaw);
+
+  const A = revenue - mainExpenseSum - revenue*(stdRatePct/100);
+  const B = simpleIncomeRaw * multiplier;
+  const incomeStd = Math.max(0, Math.min(A,B));
+  const stdBinding = A<=B ? 'A' : 'B';
+
+  const chainBook = computeTaxChain(rBook.income, deduction, taxCredit, prepaid);
+  const chainSimple = computeTaxChain(incomeSimple, deduction, taxCredit, prepaid);
+  const chainStd = computeTaxChain(incomeStd, deduction, taxCredit, prepaid);
+
+  return {rBook,revenue,deduction,taxCredit,prepaid,simpleRatePct,stdRatePct,mainExpenseSum,multiplier,
+    simpleIncomeRaw,incomeSimple,A,B,incomeStd,stdBinding,chainBook,chainSimple,chainStd};
+}
+
+function renderT4(){
+  const d = computeExpenseRateChains();
+  document.getElementById('mainExpenseSum').value = fmt(d.mainExpenseSum);
+
+  const rows = [
+    {label:'장부(기장) 실제', c: d.chainBook, expense: d.revenue - d.chainBook.income},
+    {label:'단순경비율 추계', c: d.chainSimple, expense: d.revenue - d.chainSimple.income},
+    {label:'기준경비율 추계', c: d.chainStd, expense: d.revenue - d.chainStd.income},
+  ];
+  const minFinal = Math.min(...rows.map(x=>x.c.finalTotal));
+
+  const tbl = document.getElementById('expenseRateTable');
+  tbl.innerHTML = `<thead><tr><th>구분</th><th>필요경비(인정경비)</th><th>소득금액</th><th>과세표준</th><th>산출세액</th><th>결정세액</th><th>최종납부세액</th></tr></thead>
+    <tbody>${rows.map(x=>`<tr class="${x.c.finalTotal===minFinal?'current':''}">
+      <td>${x.label}${x.c.finalTotal===minFinal?' <span class="badge">최소</span>':''}</td>
+      <td>${fmt(x.expense)}</td><td>${fmt(x.c.income)}</td><td>${fmt(x.c.base)}</td><td>${fmt(x.c.calcTax)}</td><td>${fmt(x.c.determined)}</td><td>${fmt(x.c.finalTotal)}</td>
+    </tr>`).join('')}</tbody>`;
+
+  const detailRows = [
+    ['수입금액', fmt(d.revenue), false, false],
+    ['− 주요경비(매입비용+임차료+인건비)', fmt(d.mainExpenseSum), true, false],
+    ['− 수입금액 × 기준경비율', fmt(d.revenue*(d.stdRatePct/100)), true, false],
+    ['= A. 기본 산식에 의한 소득금액', fmt(d.A), false, true],
+    ['단순경비율 가정 소득금액(수입금액×(1-단순경비율))', fmt(d.simpleIncomeRaw), false, false],
+    ['= B. 단순경비율 소득금액 × 배율(상한)', fmt(d.B), false, true],
+    [`기준경비율 최종 소득금액 = min(A,B) → ${d.stdBinding} 적용`, fmt(d.incomeStd), false, 'final'],
+  ];
+  document.getElementById('stdRateDetailTable').innerHTML = '<tbody>'+detailRows.map(row=>{
+    const [label,val,,style]=row;
+    const cls = style==='final'?'final':(style?'subtotal':'');
+    return `<tr class="${cls}"><td class="label">${label}</td><td class="op"></td><td class="val">${val}원</td></tr>`;
+  }).join('')+'</tbody>';
+
+  const msg = document.getElementById('t4msg');
+  msg.className='msg-box info';
+  msg.innerHTML = `세 가지 방식 중 <b>${rows.find(x=>x.c.finalTotal===minFinal).label}</b>의 최종납부세액이 가장 낮습니다. 다만 실제로 어느 방식을 선택·적용할 수 있는지는 기장 여부, 업종별 대상 기준수입금액, 무기장가산세 등을 함께 고려해 판단해야 합니다.`;
+
+  renderConversion(d);
+}
+
+/* ---------------- 장부기장 vs 경비율 전환 판단 ---------------- */
+document.querySelectorAll('input[name=convBasis]').forEach(r=> r.addEventListener('change', recalcAll));
+document.getElementById('applyPenalty') && document.getElementById('applyPenalty').addEventListener('change', recalcAll);
+
+function renderConversion(d){
+  const basis = document.querySelector('input[name=convBasis]:checked').value;
+  const applyPenalty = document.getElementById('applyPenalty').checked;
+  const chosen = basis==='simple' ? d.chainSimple : d.chainStd;
+  const chosenLabel = basis==='simple' ? '단순경비율' : '기준경비율';
+
+  const penalty = applyPenalty ? Math.round(chosen.calcTax*0.2) : 0;
+  const totalBurdenExpense = chosen.finalTotal + penalty;
+  const bookFinal = d.chainBook.finalTotal;
+
+  const rows = [
+    [`${chosenLabel} 방식 산출세액`, fmt(chosen.calcTax), false, false],
+    [`${chosenLabel} 방식 최종납부세액(지방세포함)`, fmt(chosen.finalTotal), false, false],
+    ['+ 무기장가산세(산출세액×20%)'+(applyPenalty?'':' — 미적용'), fmt(penalty), false, false],
+    [`= 경비율 신고 시 총부담액`, fmt(totalBurdenExpense), false, 'final'],
+    ['장부기장(현재 실제 비용 기준) 최종납부세액', fmt(bookFinal), false, true],
+  ];
+  document.getElementById('convCompareTable').innerHTML = '<tbody>'+rows.map(row=>{
+    const [label,val,,style]=row;
+    const cls = style==='final'?'final':(style?'subtotal':'');
+    return `<tr class="${cls}"><td class="label">${label}</td><td class="op"></td><td class="val">${val}원</td></tr>`;
+  }).join('')+'</tbody>';
+
+  const msgEl = document.getElementById('convMsg');
+  if(bookFinal < totalBurdenExpense){
+    msgEl.className='msg-box ok';
+    msgEl.innerHTML = `현재 장부상 비용만으로도 장부기장이 <b>${chosenLabel}(가산세 포함)</b>보다 <b>약 ${fmt(totalBurdenExpense-bookFinal)}원</b> 유리합니다. 장부기장 신고를 유지하는 것이 좋습니다.`;
+  } else if(bookFinal > totalBurdenExpense){
+    msgEl.className='msg-box warn';
+    msgEl.innerHTML = `현재 장부상 비용 기준으로는 ${chosenLabel}(가산세 포함) 신고가 <b>약 ${fmt(bookFinal-totalBurdenExpense)}원</b> 더 유리합니다. 장부기장으로 전환하려면 아래 표만큼 비용을 추가로 확보해야 동등해집니다.`;
+  } else {
+    msgEl.className='msg-box info';
+    msgEl.innerHTML = `두 방식의 총부담액이 동일합니다.`;
+  }
+
+  // reverse: how much additional actual expense is needed for bookkeeping to match totalBurdenExpense
+  const targetFinal = totalBurdenExpense;
+  const targetDetermined = (targetFinal + d.prepaid) / 1.1;
+  const targetCalcTax = Math.max(0, targetDetermined + d.taxCredit);
+  const targetBase = findBaseForTax(targetCalcTax);
+  const targetIncome = targetBase + d.deduction;
+  const targetTotalExpense = d.revenue - targetIncome;
+  const additionalExpenseNeeded = targetTotalExpense - d.rBook.totalExpense;
+
+  const grows = [
+    [`목표(경비율 신고 시 총부담액과 동일)`, fmt(targetFinal), false, false],
+    ['필요 결정세액(환산)', fmt(targetDetermined), false, false],
+    ['필요 산출세액', fmt(targetCalcTax), false, false],
+    ['필요 과세표준', fmt(targetBase), false, true],
+    ['+ 소득공제(현재값 유지)', fmt(d.deduction), false, false],
+    ['= 필요 소득금액', fmt(targetIncome), false, true],
+    ['매출액(현재값 유지)', fmt(d.revenue), false, false],
+    ['= 필요 필요경비 합계(장부기준)', fmt(targetTotalExpense), false, true],
+    ['현재 장부상 필요경비 합계', fmt(d.rBook.totalExpense), false, false],
+    ['장부기장 전환을 위해 추가로 확보해야 할 비용', fmt(additionalExpenseNeeded), false, 'final'],
+  ];
+  document.getElementById('convGoalTable').innerHTML = '<tbody>'+grows.map(row=>{
+    const [label,val,,style]=row;
+    const cls = style==='final'?'final':(style?'subtotal':'');
+    return `<tr class="${cls}"><td class="label">${label}</td><td class="op"></td><td class="val">${val}원</td></tr>`;
+  }).join('')+'</tbody>';
+
+  const gmsg = document.getElementById('convGoalMsg');
+  if(additionalExpenseNeeded>0){
+    gmsg.className='msg-box warn';
+    gmsg.innerHTML = `장부기장으로 전환해 ${chosenLabel}(가산세 포함) 신고와 최소한 동일한 세부담을 만들려면, 현재 장부상 비용보다 <b>약 ${fmt(additionalExpenseNeeded)}원</b>의 증빙 가능한 비용을 추가로 확보해야 합니다. 이보다 더 확보하면 장부기장이 더 유리해집니다.`;
+  } else {
+    gmsg.className='msg-box ok';
+    gmsg.innerHTML = `현재 장부상 비용만으로 이미 목표 수준을 달성했습니다. 추가 비용 확보 없이도 장부기장이 ${chosenLabel}(가산세 포함)보다 유리하거나 동등합니다.`;
+  }
+}
+
+/* ---------------- recalc all tabs ---------------- */
+function recalcAll(){
+  renderT1();
+  renderT3();
+  renderT4();
+  autosaveDebounced();
+}
+
+/* ---------------- tabs switching ---------------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------------- persistence ---------------- */
+const STORAGE_KEY = 'jongso_tax_calc_v1';
+function collectState(){
+  const ids = ['revenue','otherExpense','beginInv','purchase','endInv','deduction','taxCredit','prepaid','goalAmount',
+    'simpleRate','stdRate','mainPurchase','mainRent','mainLabor','multiplier'];
+  const state = {};
+  ids.forEach(id=> state[id]=document.getElementById(id).value);
+  state.goalType = document.querySelector('input[name=goalType]:checked').value;
+  state.ledgerType = document.querySelector('input[name=ledgerType]:checked').value;
+  state.convBasis = document.querySelector('input[name=convBasis]:checked').value;
+  state.applyPenalty = document.getElementById('applyPenalty').checked;
+  state.invSlider = document.getElementById('invSlider').value;
+  state.brackets = brackets;
+  return state;
+}
+function applyState(state){
+  if(!state) return;
+  Object.keys(state).forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = state[id];
+  });
+  if(state.goalType){
+    const r = document.querySelector(`input[name=goalType][value="${state.goalType}"]`);
+    if(r) r.checked = true;
+  }
+  if(state.ledgerType){
+    const r = document.querySelector(`input[name=ledgerType][value="${state.ledgerType}"]`);
+    if(r) r.checked = true;
+  }
+  if(state.convBasis){
+    const r = document.querySelector(`input[name=convBasis][value="${state.convBasis}"]`);
+    if(r) r.checked = true;
+  }
+  if(state.applyPenalty!==undefined) document.getElementById('applyPenalty').checked = state.applyPenalty;
+  if(state.invSlider!==undefined) document.getElementById('invSlider').value = state.invSlider;
+  if(state.brackets) brackets = state.brackets;
+  renderRateTable();
+}
+function saveLocal(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(collectState()));
+  const el = document.getElementById('saveStatus');
+  el.textContent = '저장됨 '+new Date().toLocaleTimeString('ko-KR');
+  setTimeout(()=>{el.textContent='';}, 3000);
+}
+let autosaveTimer=null;
+function autosaveDebounced(){
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(()=>{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectState()));
+  }, 600);
+}
+function loadLocal(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try{ applyState(JSON.parse(raw)); }catch(e){}
+  }
+}
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(collectState(), null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '종합소득세계산_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function importJSON(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const state = JSON.parse(e.target.result);
+      applyState(state);
+      recalcAll();
+      calcGoal();
+    }catch(err){ alert('JSON 파일을 읽는 중 오류가 발생했습니다.'); }
+  };
+  reader.readAsText(file);
+}
+function downloadSelf(){
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob(['<!DOCTYPE html>\n'+html], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '종합소득세_계산기.html';
+  a.click();
+}
+function resetAll(){
+  if(!confirm('모든 입력값을 초기화하시겠습니까?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+/* ---------------- init ---------------- */
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderRateTable();
+  attachCommaInputs();
+  loadLocal();
+  renderRateTable();
+  onInvSlider();
+  recalcAll();
+  calcGoal();
+});
+</script>
+
+<div class="print-footer" style="text-align:center;margin-top:32px;
+  padding-top:16px;border-top:2px solid #0d2a5e;font-size:13px;color:#555;line-height:2;">
+  세무사 이정란사무소 제공 · 서울 노원구 상계동 · Tel: 02-935-0280 · www.jrleetax.co.kr<br>
+  <span style="font-size:11px;color:#888;">※ 본 계산 결과는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.</span>
+</div>
+</body>
+</html>
