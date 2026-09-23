@@ -128,19 +128,13 @@ td.minus{color:var(--green);font-weight:700}
   .tabs,.btns,button,.back{display:none!important}
   .pane{display:block!important}
 }
-
-  .print-footer{display:none;}
-  @media print{
-    .print-footer{display:block !important;}
-    .no-print{display:none !important;}
-  }
 </style>
 </head>
 <body>
 <header>
   <a href="index.html" class="back">← 세무사 이정란사무소 홈으로</a>
   <h1>증여세 계산기</h1>
-  <p>2026년 현행 증여세법 기준 · 관계별 공제 자동 반영 · 세무사 이정란사무소 제공</p>
+  <p>2024년 현행 증여세법 기준 · 관계별 공제 자동 반영 · 세무사 이정란사무소 제공</p>
 </header>
 
 <div class="wrap">
@@ -208,8 +202,8 @@ td.minus{color:var(--green);font-weight:700}
 
         <button class="primary" id="btnCalc">증여세 계산하기</button>
         <div class="btns">
-          <button id="btnSave" style="display:none">저장</button>
-          <button id="btnLoad" style="display:none">불러오기</button>
+          <button id="btnSave">저장</button>
+          <button id="btnLoad">불러오기</button>
           <button id="btnPrint">인쇄/PDF</button>
         </div>
       </div>
@@ -247,17 +241,10 @@ td.minus{color:var(--green);font-weight:700}
             <tbody id="splitBody"></tbody>
           </table>
         </div>
-        <div style="margin-top:20px;text-align:center;padding-top:16px;border-top:1px solid #eee;">
-          <p style="font-size:13px;color:#888;margin-bottom:12px;">
-            ※ 본 계산기는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.
-          </p>
-          <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank"
-             style="display:inline-block;background:#FEE500;color:#3A1D1D;font-weight:700;
-                    font-size:16px;padding:14px 48px;border-radius:12px;text-decoration:none;
-                    box-shadow:0 2px 8px rgba(0,0,0,0.15);">
-            💬 세무사에게 정확한 상담 받기
-          </a>
-        </div>
+
+        <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="kakao-btn">
+          💬 세무사에게 정확한 상담 받기
+        </a>
       </div>
     </div>
   </div>
@@ -282,17 +269,17 @@ td.minus{color:var(--green);font-weight:700}
       <div class="note" style="margin-top:14px">
         <b>10년 합산 규정</b> — 동일인(직계존속은 배우자 포함)으로부터 10년 이내에 받은 증여재산은 합산하여 공제 한도를 적용합니다.<br>
         <b>절세 포인트</b> — 10년마다 공제 한도가 리셋되므로, 자녀에게 5천만원씩 10년 주기로 증여하면 공제를 반복 활용할 수 있습니다.<br>
-        <b>혼인·출산 증여공제 (2024년 신설)</b> — 혼인일 전후 2년 이내 또는 자녀 출생일로부터 2년 이내 직계존속으로부터 받는 증여에 대해 <b>1억원 추가 공제</b> (기존 5천만원 + 추가 1억원 = 최대 1억 5천만원)
+        <b>혼인·출산 증여재산공제 (상증법 §53의2, 2024년 신설)</b> — 혼인신고일 전후 2년 이내 또는 자녀 출생일(입양신고일)부터 2년 이내 직계존속으로부터 받는 증여에 대해 <b>1억원 추가 공제</b> (기존 5천만원 + 추가 1억원 = 최대 1억 5천만원)
       </div>
 
-      <p class="sec" style="margin-top:20px">혼인·출산 증여공제 (조특법 §71의2)</p>
+      <p class="sec" style="margin-top:20px">혼인·출산 증여재산공제 (상증법 §53의2)</p>
       <table class="lawtbl" style="margin-top:8px">
         <thead><tr><th style="width:30%">구분</th><th>내용</th></tr></thead>
         <tbody>
           <tr><td>적용 시기</td><td>2024.1.1. 이후 증여분부터</td></tr>
-          <tr><td>대상</td><td>직계존속(부모·조부모)으로부터 받은 증여</td></tr>
+          <tr><td>대상</td><td>거주자가 직계존속(부모·조부모)으로부터 받은 증여</td></tr>
           <tr><td>혼인 공제</td><td>혼인신고일 전후 <b>각 2년</b> 이내 증여분에 대해 <b>1억원</b> 추가 공제</td></tr>
-          <tr><td>출산 공제</td><td>자녀 출생일(입양 포함)로부터 <b>2년</b> 이내 증여분에 대해 <b>1억원</b> 추가 공제</td></tr>
+          <tr><td>출산 공제</td><td>자녀 출생일 또는 입양신고일부터 <b>2년</b> 이내 증여분에 대해 <b>1억원</b> 추가 공제</td></tr>
           <tr><td>한도</td><td>혼인·출산 공제 합산 <b>1억원</b> 한도 (중복 적용 불가)</td></tr>
         </tbody>
       </table>
@@ -302,7 +289,7 @@ td.minus{color:var(--green);font-weight:700}
   <!-- ===== 세율 탭 ===== -->
   <div class="pane" id="p-law">
     <div class="card">
-      <h2>증여세 세율표 (2026년 현행)</h2>
+      <h2>증여세 세율표 (2024년 현행)</h2>
       <table class="lawtbl">
         <thead><tr><th>과세표준</th><th style="text-align:center">세율</th><th style="text-align:right">누진공제</th></tr></thead>
         <tbody>
@@ -577,11 +564,5 @@ $('btnCalc').addEventListener('click',render);
 
 render();
 </script>
-
-<div class="print-footer" style="text-align:center;margin-top:32px;
-  padding-top:16px;border-top:2px solid #0d2a5e;font-size:13px;color:#555;line-height:2;">
-  세무사 이정란사무소 제공 · 서울 노원구 상계동 · Tel: 02-935-0280 · www.jrleetax.co.kr<br>
-  <span style="font-size:11px;color:#888;">※ 본 계산 결과는 실무 참고용이며, 세무전문가에게 확인하시고 결정하시기 바랍니다.</span>
-</div>
 </body>
 </html>
