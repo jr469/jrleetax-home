@@ -198,7 +198,12 @@ td.minus{color:var(--green);font-weight:700}
           <option value="0">해당 없음</option>
           <option value="1">연부연납 신청 예정</option>
         </select>
-        <div class="hint">납부세액 1천만원 초과 시 최대 5년 분할납부 신청 가능</div>
+        <div class="hint">납부세액 2천만원 초과 시 신고 때 1회 + 이후 최대 5년간 매년 분할납부(각 회분 1천만원 초과) · 납세담보 제공 필요</div>
+        <div id="rateWrap" style="display:none">
+          <label>연부연납가산금 이자율 (연 %)</label>
+          <input type="text" id="instRate" value="3.1">
+          <div class="hint">국세환급가산금 이자율(2025.3.21. 이후 연 3.1%). 각 분할납부일 현재 고시 이자율이 적용되니 신청 시 확인하세요.</div>
+        </div>
 
         <button class="primary" id="btnCalc">증여세 계산하기</button>
         <div class="btns">
@@ -228,6 +233,17 @@ td.minus{color:var(--green);font-weight:700}
           <tbody id="tbody"></tbody>
         </table>
         <div class="note" id="noteBox" style="display:none"></div>
+
+        <!-- 연부연납 일정 -->
+        <div id="instSection" style="margin-top:16px;display:none">
+          <h2 style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px;
+            padding-bottom:8px;border-bottom:2px solid var(--navy)">연부연납 납부 일정 (예상)</h2>
+          <div id="instMsg" style="font-size:12px;color:var(--muted);margin-bottom:10px"></div>
+          <table>
+            <thead><tr><th>회차</th><th>분할납부세액</th><th>연부연납가산금</th><th>납부액 합계</th></tr></thead>
+            <tbody id="instBody"></tbody>
+          </table>
+        </div>
 
         <!-- 분할증여 시뮬레이션 -->
         <div id="splitSection" style="margin-top:16px;display:none">
@@ -429,6 +445,27 @@ function calc(){
   };
 }
 
+/* ===== 연부연납 (상증법 §71, 상증령 §69) ===== */
+function calcInstallment(total, ratePct){
+  // 요건: 납부세액 2천만원 초과, 각 회분 1천만원 초과, 증여세 최대 5년
+  if(total <= 20000000) return {ok:false, reason: total>10000000
+    ? '납부세액이 2천만원 이하라 연부연납은 안 되지만, 1천만원 초과분은 납부기한 다음 날부터 2개월 이내 <b>분납</b>할 수 있습니다.'
+    : '납부세액이 2천만원 이하라 연부연납 대상이 아닙니다.'};
+  var n = Math.min(5, Math.ceil(total/10000000) - 2);   // 연부연납 기간(년) — 각 회분 1천만원 초과
+  var parts = n + 1;                                       // 신고 시 1회 + 매년 n회
+  var part = Math.floor(total/parts);
+  var rate = (Number(ratePct)||0)/100;
+  var rows=[], paid=0, sumInt=0;
+  for(var k=0;k<parts;k++){
+    var amt = (k===parts-1) ? total-paid : part;
+    var balanceBefore = total - paid;                      // 직전 납부 후 잔액
+    var interest = k===0 ? 0 : Math.round(balanceBefore * rate); // 1년분 가산금(단순화)
+    rows.push({no:k, amt:amt, interest:interest});
+    paid += amt; sumInt += interest;
+  }
+  return {ok:true, years:n, rows:rows, sumInt:sumInt};
+}
+
 /* ===== 렌더 ===== */
 function render(){
   var R = calc();
@@ -484,6 +521,28 @@ function render(){
   if(notes.length){nb.innerHTML='· '+notes.join('<br>· ');nb.style.display='block';}
   else nb.style.display='none';
 
+  // 연부연납
+  var inst = $('installment').value==='1';
+  $('rateWrap').style.display = inst ? 'block' : 'none';
+  if(inst && R.finalTax>0){
+    var I = calcInstallment(R.finalTax, $('instRate').value);
+    $('instSection').style.display='block';
+    if(!I.ok){
+      $('instMsg').innerHTML = I.reason; $('instBody').innerHTML='';
+    } else {
+      $('instMsg').innerHTML = '신고 시 1회 + 이후 <b>'+I.years+'년</b>간 매년 분할납부 (총 '+(I.years+1)+'회). 가산금은 직전 회차 납부 후 잔액 × 연 '+$('instRate').value+'% × 1년으로 단순 계산했습니다.';
+      var ih='', tot=0;
+      I.rows.forEach(function(r){
+        tot += r.amt + r.interest;
+        ih += '<tr><td>'+(r.no===0?'신고 시':r.no+'년차')+'</td><td>'+fmt(r.amt)+'원</td><td>'+fmt(r.interest)+'원</td><td>'+fmt(r.amt+r.interest)+'원</td></tr>';
+      });
+      ih += '<tr class="total"><td>합계</td><td>'+fmt(R.finalTax)+'원</td><td>'+fmt(I.sumInt)+'원</td><td>'+fmt(tot)+'원</td></tr>';
+      $('instBody').innerHTML = ih;
+    }
+  } else {
+    $('instSection').style.display='none';
+  }
+
   // 분할증여 시뮬레이션 (세금이 있을 때만)
   if(R.finalTax>0 && giftAmt>currentDeduct){
     $('splitSection').style.display='block';
@@ -525,6 +584,7 @@ document.querySelectorAll('input.num').forEach(function(el){
   $(id).addEventListener('input',render);
 });
 $('installment').addEventListener('change',render);
+$('instRate').addEventListener('input',render);
 
 /* ===== 탭 ===== */
 document.querySelectorAll('.tab').forEach(function(t){
@@ -540,7 +600,8 @@ document.querySelectorAll('.tab').forEach(function(t){
 $('btnSave').addEventListener('click',function(){
   var o={rel:currentRel,deduct:currentDeduct,
     giftAmt:$('giftAmt').value,priorGift:$('priorGift').value,
-    priorDeduct:$('priorDeduct').value,debt:$('debt').value};
+    priorDeduct:$('priorDeduct').value,debt:$('debt').value,
+    installment:$('installment').value,instRate:$('instRate').value};
   try{localStorage.setItem('gift2024',JSON.stringify(o));alert('저장했습니다.');}
   catch(e){alert('저장 실패: '+e.message);}
 });
@@ -549,7 +610,7 @@ $('btnLoad').addEventListener('click',function(){
     var s=localStorage.getItem('gift2024');
     if(!s){alert('저장된 데이터가 없습니다.');return;}
     var o=JSON.parse(s);
-    ['giftAmt','priorGift','priorDeduct','debt'].forEach(function(f){
+    ['giftAmt','priorGift','priorDeduct','debt','installment','instRate'].forEach(function(f){
       if(o[f]!==undefined) $(f).value=o[f];
     });
     // 관계 복원
