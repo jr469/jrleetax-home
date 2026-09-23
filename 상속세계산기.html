@@ -120,7 +120,7 @@ td.minus{color:var(--green);font-weight:700}
 <header>
   <a href="index.html" class="back">← 세무사 이정란사무소 홈으로</a>
   <h1>상속세 계산기</h1>
-  <p>2024년 현행 상속세법 기준 · 각종 공제 자동 반영 · 세무사 이정란사무소 제공</p>
+  <p>2026년 현행 상속세법 기준 · 각종 공제 자동 반영 · 세무사 이정란사무소 제공</p>
 </header>
 
 <div class="wrap">
@@ -256,6 +256,20 @@ td.minus{color:var(--green);font-weight:700}
           </div>
         </div>
 
+        <div class="deduct-item" style="margin-top:12px">
+          <label>납부할 상속세에 대한 연부연납 여부</label>
+          <select id="installment">
+            <option value="0">해당 없음</option>
+            <option value="1">연부연납 신청 예정</option>
+          </select>
+          <div class="hint">납부세액 2천만원 초과 시 신고 때 1회 + 이후 최대 10년간 매년 분할납부(각 회분 1천만원 초과) · 납세담보 제공 필요</div>
+          <div id="rateWrap" style="display:none">
+            <label>연부연납가산금 이자율 (연 %)</label>
+            <input type="text" id="instRate" value="3.1">
+            <div class="hint">국세환급가산금 이자율(2025.3.21. 이후 연 3.1%). 각 분할납부일 현재 고시 이자율이 적용되니 신청 시 확인하세요.</div>
+          </div>
+        </div>
+
         <button class="primary" id="btnCalc">상속세 계산하기</button>
         <div class="btns">
           <button id="btnSave">저장</button>
@@ -284,6 +298,16 @@ td.minus{color:var(--green);font-weight:700}
           <tbody id="tbody"></tbody>
         </table>
         <div class="note" id="noteBox" style="display:none"></div>
+
+        <!-- 연부연납 일정 -->
+        <div id="instSection" style="margin-top:16px;display:none">
+          <h2 style="font-size:14px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--navy)">연부연납 납부 일정 (예상)</h2>
+          <div id="instMsg" style="font-size:12px;color:var(--muted);margin-bottom:10px"></div>
+          <table>
+            <thead><tr><th>회차</th><th>분할납부세액</th><th>연부연납가산금</th><th>납부액 합계</th></tr></thead>
+            <tbody id="instBody"></tbody>
+          </table>
+        </div>
 
         <a href="https://pf.kakao.com/_jfhxcj/chat" target="_blank" class="kakao-btn">
           💬 세무사에게 정확한 상담 받기
@@ -329,7 +353,7 @@ td.minus{color:var(--green);font-weight:700}
   <!-- ===== 세율 탭 ===== -->
   <div class="pane" id="p-law">
     <div class="card">
-      <h2>상속세 세율표 (2024년 현행)</h2>
+      <h2>상속세 세율표 (2026년 현행)</h2>
       <table class="lawtbl">
         <thead><tr><th>과세표준</th><th class="c" style="text-align:center">세율</th><th style="text-align:right">누진공제</th></tr></thead>
         <tbody>
@@ -540,6 +564,22 @@ function calc(){
   };
 }
 
+/* ===== 연부연납 (상증법 §71, 상증령 §67~§69) — 일반 상속재산 최대 10년 ===== */
+function calcInstallment(total, ratePct, maxYears){
+  if(total <= 20000000) return {ok:false, reason: total>10000000
+    ? '납부세액이 2천만원 이하라 연부연납은 안 되지만, 1천만원 초과분은 납부기한 다음 날부터 2개월 이내 <b>분납</b>할 수 있습니다.'
+    : '납부세액이 2천만원 이하라 연부연납 대상이 아닙니다.'};
+  var n = Math.min(maxYears, Math.ceil(total/10000000) - 2);
+  var parts = n + 1, part = Math.floor(total/parts), rate = (Number(ratePct)||0)/100;
+  var rows=[], paid=0, sumInt=0;
+  for(var k=0;k<parts;k++){
+    var amt = (k===parts-1) ? total-paid : part;
+    var interest = k===0 ? 0 : Math.round((total-paid) * rate);
+    rows.push({no:k, amt:amt, interest:interest}); paid += amt; sumInt += interest;
+  }
+  return {ok:true, years:n, rows:rows, sumInt:sumInt};
+}
+
 /* ===== 렌더 ===== */
 function render(){
   // 과세가액 실시간 표시
@@ -592,6 +632,23 @@ function render(){
   h += '<tr class="sub"><td>− 신고세액공제 (3%)</td><td class="minus">'+fmt(R.reportDiscount)+'원</td></tr>';
   h += '<tr class="total"><td>최종 납부세액</td><td style="color:var(--navy)">'+fmt(R.finalTax)+'원</td></tr>';
   $('tbody').innerHTML = h;
+
+  // 연부연납
+  var inst = $('installment').value==='1';
+  $('rateWrap').style.display = inst ? 'block' : 'none';
+  if(inst && R.finalTax>0){
+    var I = calcInstallment(R.finalTax, $('instRate').value, 10);
+    $('instSection').style.display='block';
+    if(!I.ok){ $('instMsg').innerHTML=I.reason; $('instBody').innerHTML=''; }
+    else{
+      $('instMsg').innerHTML='신고 시 1회 + 이후 <b>'+I.years+'년</b>간 매년 분할납부 (총 '+(I.years+1)+'회). 가산금은 직전 회차 납부 후 잔액 × 연 '+$('instRate').value+'% × 1년으로 단순 계산했습니다. 가업상속재산(최대 20년)은 반영하지 않았습니다.';
+      var ih='', tot=0;
+      I.rows.forEach(function(r){ tot+=r.amt+r.interest;
+        ih+='<tr><td>'+(r.no===0?'신고 시':r.no+'년차')+'</td><td>'+fmt(r.amt)+'원</td><td>'+fmt(r.interest)+'원</td><td>'+fmt(r.amt+r.interest)+'원</td></tr>'; });
+      ih+='<tr class="total"><td>합계</td><td>'+fmt(R.finalTax)+'원</td><td>'+fmt(I.sumInt)+'원</td><td>'+fmt(tot)+'원</td></tr>';
+      $('instBody').innerHTML=ih;
+    }
+  } else $('instSection').style.display='none';
 
   // 주의 사항
   var notes = [];
@@ -649,6 +706,8 @@ $('chkSpouse').addEventListener('change', function(){
 ['chkBasic','chkSpouse','chkFamily','chkHome','chkBusiness','chkFinancial'].forEach(function(id){
   $(id) && $(id).addEventListener('change', render);
 });
+$('installment').addEventListener('change', render);
+$('instRate').addEventListener('input', render);
 
 /* ===== 탭 ===== */
 document.querySelectorAll('.tab').forEach(function(t){
@@ -661,7 +720,7 @@ document.querySelectorAll('.tab').forEach(function(t){
 });
 
 /* ===== 저장/불러오기 ===== */
-var FIELDS=['totalEstate','preGift','preGiftDed','bizYears','nonTax','debt','spouse','children','minorAges','disabled','elderly','lifeExp','spouseAmt','homeAmt','businessAmt','financialAmt'];
+var FIELDS=['totalEstate','preGift','preGiftDed','bizYears','installment','instRate','nonTax','debt','spouse','children','minorAges','disabled','elderly','lifeExp','spouseAmt','homeAmt','businessAmt','financialAmt'];
 var CHECKS=['chkBasic','chkSpouse','chkFamily','chkHome','chkBusiness','chkFinancial'];
 $('btnSave').addEventListener('click',function(){
   var o={};
